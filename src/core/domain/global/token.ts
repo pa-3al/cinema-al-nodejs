@@ -1,0 +1,6 @@
+export const SECRET_PORT = Symbol("SECRET_PORT")
+export const STORAGE_PORT = Symbol("STORAGE_PORT")
+
+
+export const MOVIE_GENRE_REPOSITORY = Symbol("MOVIE_GENRE_REPOSITORY")
+export const MOVIE_GENRE_SERVICE = Symbol("MOVIE_GENRE_SERVICE")

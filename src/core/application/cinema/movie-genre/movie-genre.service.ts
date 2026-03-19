@@ -29,8 +29,8 @@ export class MovieGenreService implements IMovieGenreServicePort {
 
     async findAll(paginationParam : PaginationQueryDto) : Promise<AllMovieGenreDto> {
 
-        var page = 1;
-        var size = 10;
+        let page = 1;
+        let size = 10;
         if (paginationParam.page != null ){
             page = paginationParam.page;
         }

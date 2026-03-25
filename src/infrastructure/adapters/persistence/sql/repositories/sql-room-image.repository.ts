@@ -6,7 +6,7 @@ import { Repository } from "typeorm";
 import { IRoomImageRepositoryPort } from "src/core/domain/cinema/room-image/port/room-image-repository.port";
 
 @Injectable()
-export class RoomImageRepository implements IRoomImageRepositoryPort{
+export class SqlRoomImageRepository implements IRoomImageRepositoryPort{
 
     constructor (
         @InjectRepository(RoomImage)

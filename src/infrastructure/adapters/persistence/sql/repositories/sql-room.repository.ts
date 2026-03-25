@@ -3,10 +3,10 @@ import { getAllResponse } from "src/core/domain/global/types/global.type";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Room } from "../entities/room.entity";
 import { Repository } from "typeorm";
-import { IRoomRepository } from "src/core/domain/cinema/room/port/room-repository.port";
+import { IRoomRepositoryPort } from "src/core/domain/cinema/room/port/room-repository.port";
 
 @Injectable()
-export class RoomRepository implements IRoomRepository{
+export class RoomRepository implements IRoomRepositoryPort{
 
     constructor (
         @InjectRepository(Room)

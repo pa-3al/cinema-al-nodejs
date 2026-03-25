@@ -3,10 +3,10 @@ import { getAllResponse } from "src/core/domain/global/types/global.type";
 import { InjectRepository } from "@nestjs/typeorm";
 import { RoomImage } from "../entities/room-image.entity";
 import { Repository } from "typeorm";
-import { IRoomImageRepository } from "src/core/domain/cinema/room-image/port/room-image-repository.port";
+import { IRoomImageRepositoryPort } from "src/core/domain/cinema/room-image/port/room-image-repository.port";
 
 @Injectable()
-export class RoomImageRepository implements IRoomImageRepository{
+export class RoomImageRepository implements IRoomImageRepositoryPort{
 
     constructor (
         @InjectRepository(RoomImage)

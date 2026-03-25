@@ -1,5 +1,5 @@
 import { IdNumberParamDto, PaginationQueryDto } from '../../../global/dto/global.dto';
-import { AllRoomImageDto, CreateAndUpdateRoomImageDto, RoomImageDetailsDto } from '../dto/room-image.dto';
+import { AllRoomImageDto, CreateAndUpdateRoomImageDto, RoomImageDetailsDto, UploadRoomImageDto } from '../dto/room-image.dto';
 
 export interface IRoomImageServicePort {
     create(roomImage : CreateAndUpdateRoomImageDto) : Promise<RoomImageDetailsDto>;
@@ -7,4 +7,5 @@ export interface IRoomImageServicePort {
     findOne(idParam : IdNumberParamDto) : Promise<RoomImageDetailsDto | null>;
     update(idParam : IdNumberParamDto, roomImage : CreateAndUpdateRoomImageDto) : Promise<RoomImageDetailsDto | null>;
     delete(idParam : IdNumberParamDto) : Promise<RoomImageDetailsDto | null>;
+    createWithUpload(body: UploadRoomImageDto, file: { originalname: string; buffer: Buffer }): Promise<RoomImageDetailsDto>;
 }

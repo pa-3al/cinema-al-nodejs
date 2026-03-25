@@ -1,16 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { AllRoomImageDto, CreateAndUpdateRoomImageDto, RoomImageDetailsDto } from 'src/core/domain/cinema/room-image/dto/room-image.dto';
-import { ROOM_IMAGE_REPOSITORY } from 'src/core/domain/global/token';
+import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { AllRoomImageDto, CreateAndUpdateRoomImageDto, RoomImageDetailsDto, UploadRoomImageDto } from 'src/core/domain/cinema/room-image/dto/room-image.dto';
+import { ROOM_IMAGE_REPOSITORY, STORAGE_PORT } from 'src/core/domain/global/token';
 import type { IRoomImageRepositoryPort } from '../../../domain/cinema/room-image/port/room-image-repository.port';
 import { PaginationQueryDto, IdNumberParamDto } from '../../../domain/global/dto/global.dto';
 import { IRoomImageServicePort } from 'src/core/domain/cinema/room-image/port/room-image-service.port';
+import type { IStorageService } from 'src/core/domain/global/storage/port/storage-service.port';
 
 @Injectable()
 export class RoomImageService implements IRoomImageServicePort {
 
     constructor (
         @Inject(ROOM_IMAGE_REPOSITORY)
-        private readonly roomImageRepository : IRoomImageRepositoryPort
+        private readonly roomImageRepository : IRoomImageRepositoryPort,
+        @Inject(STORAGE_PORT)
+        private readonly storageService : IStorageService
     ){}
 
     async create(roomImage: CreateAndUpdateRoomImageDto): Promise<RoomImageDetailsDto> {
@@ -41,5 +44,24 @@ export class RoomImageService implements IRoomImageServicePort {
 
     async delete(id : IdNumberParamDto) : Promise<RoomImageDetailsDto | null> {
         return await this.roomImageRepository.delete(id.id);
+    }
+
+    async createWithUpload(body: UploadRoomImageDto, file: { originalname: string; buffer: Buffer }): Promise<RoomImageDetailsDto>{
+        if (!file) {
+            throw new BadRequestException('File is required');
+        }
+
+        const fileName = `rooms/${body.roomId}/${Date.now()}-${file.originalname}`;
+
+        await this.storageService.uploadFile(fileName, file.buffer);
+
+        const imageUrl = await this.storageService.getFileUrl(fileName);
+
+        const roomImageToCreate = this.roomImageRepository.create({
+            roomId: body.roomId,
+            displayOrder: body.displayOrder,
+            imageUrl
+        });
+        return await this.roomImageRepository.save(roomImageToCreate);
     }
 }

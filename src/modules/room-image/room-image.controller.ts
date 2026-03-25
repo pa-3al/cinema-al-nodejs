@@ -10,10 +10,14 @@ import {
     Param,
     Patch,
     Post,
-    Query
+    Query,
+    UploadedFile,
+    UseInterceptors
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import {
     ApiBody,
+    ApiConsumes,
     ApiCreatedResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -21,7 +25,7 @@ import {
     ApiParam,
     ApiTags
 } from "@nestjs/swagger";
-import { AllRoomImageDto, CreateAndUpdateRoomImageDto, RoomImageDetailsDto } from "src/core/domain/cinema/room-image/dto/room-image.dto";
+import { AllRoomImageDto, CreateAndUpdateRoomImageDto, RoomImageDetailsDto, UploadRoomImageDto } from "src/core/domain/cinema/room-image/dto/room-image.dto";
 import type { IRoomImageServicePort } from "src/core/domain/cinema/room-image/port/room-image-service.port";
 import { IdNumberParamDto, PaginationQueryDto } from "src/core/domain/global/dto/global.dto";
 import { ROOM_IMAGE_SERVICE } from "src/core/domain/global/token";
@@ -93,5 +97,12 @@ export class RoomImageController {
             throw new NotFoundException(`Movie genre with id ${idParam.id} not found`);
         }
         return roomImage;
+    }
+
+    @Post("upload")
+    @UseInterceptors(FileInterceptor("file"))
+    @ApiConsumes("multipart/form-data")
+    async uploadFile(@Body() body: UploadRoomImageDto, @UploadedFile() file: { originalname: string; buffer: Buffer }): Promise<RoomImageDetailsDto> {
+        return this.roomImageService.createWithUpload(body, file);
     }
 }

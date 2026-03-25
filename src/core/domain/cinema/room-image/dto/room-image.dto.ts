@@ -51,3 +51,12 @@ export class CreateAndUpdateRoomImageDto {
     @ApiProperty({ description: "Identifier of the associated room", example: 1 })
     roomId : number;
 }
+
+export class UploadRoomImageDto {
+
+    @ApiProperty({ description: "Identifier of the associated room", example: 1 })
+    roomId : number;
+
+    @ApiProperty({ description: "Display order of the room image", example: 1 })
+    displayOrder : number;
+}

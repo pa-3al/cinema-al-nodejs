@@ -32,7 +32,7 @@ import { ROOM_IMAGE_SERVICE } from "src/core/domain/global/token";
 
 
 @ApiTags('Room')
-@Controller('roomImage')
+@Controller('room-images')
 export class RoomImageController {
     constructor (
         @Inject(ROOM_IMAGE_SERVICE)
@@ -43,6 +43,7 @@ export class RoomImageController {
     @ApiOperation({summary: "Create a new roomImage"})
     @ApiCreatedResponse({type : RoomImageDetailsDto})
     @ApiBody({ type : CreateAndUpdateRoomImageDto})
+    @ApiOperation({deprecated: true})
     async create(@Body() body : CreateAndUpdateRoomImageDto) {
         return await this.roomImageService.create(body);
     }

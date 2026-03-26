@@ -28,7 +28,7 @@ import { ROOM_SERVICE } from "src/core/domain/global/token";
 import { Room } from "src/infrastructure/adapters/persistence/sql/entities/room.entity";
 
 @ApiTags('Room')
-@Controller('room')
+@Controller('rooms')
 export class RoomController {
     constructor (
         @Inject(ROOM_SERVICE)

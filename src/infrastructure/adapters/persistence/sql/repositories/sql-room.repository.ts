@@ -35,7 +35,10 @@ export class SqlRoomRepository implements IRoomRepositoryPort{
     }
 
     async findById(id: number): Promise<Room | null> {
-        return await this.roomRepository.findOneBy({ id })
+        return await this.roomRepository.findOne({
+            where: { id },
+            relations: ['roomImage']
+        });
     }
 
     async update(id: number, room: Partial<Room>): Promise<Room | null> {

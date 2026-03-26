@@ -4,6 +4,7 @@ import type { IRoomRepositoryPort } from "src/core/domain/cinema/room/port/room-
 import { IRoomServicePort } from "src/core/domain/cinema/room/port/room-service.port";
 import { IdNumberParamDto, PaginationQueryDto } from "src/core/domain/global/dto/global.dto";
 import { ROOM_REPOSITORY } from "src/core/domain/global/token";
+import { Room } from "src/infrastructure/adapters/persistence/sql/entities/room.entity";
 
 
 @Injectable()
@@ -13,6 +14,20 @@ export class RoomService implements IRoomServicePort{
         @Inject(ROOM_REPOSITORY)
         private readonly roomRepository : IRoomRepositoryPort
     ) {}
+
+    private mapRoomToDetailDto(room: Room): RoomDetailDto {
+        return {
+            id: room.id,
+            name: room.name,
+            description: room.description,
+            capacity: room.capacity,
+            isMaintenance: room.isMaintenance,
+            roomImageIds: room.roomImage?.map(img => img.id) || [],
+            createdAt: room.createdAt,
+            updatedAt: room.updatedAt,
+            deletedAt: room.deletedAt
+        };
+    }
 
     async create(room : CreateAndUpdateRoomDto) : Promise<RoomDetailDto> {
         const roomCreated = this.roomRepository.create(room);
@@ -32,7 +47,10 @@ export class RoomService implements IRoomServicePort{
     }
 
     async findOne(idParam: IdNumberParamDto) : Promise<RoomDetailDto | null> {
-        return await this.roomRepository.findById(idParam.id);
+        const room = await this.roomRepository.findById(idParam.id);
+        if (room === null)
+            return null;
+        return this.mapRoomToDetailDto(room);
     }
 
     async update(idParam : IdNumberParamDto, room : CreateAndUpdateRoomDto) : Promise<RoomDetailDto | null> {

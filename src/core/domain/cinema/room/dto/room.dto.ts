@@ -17,6 +17,9 @@ export class RoomDetailDto {
     @ApiProperty({ description : "Indicates if the room is under maintenance", example: false })
     isMaintenance : boolean;
 
+    @ApiProperty({ description : "List of image IDs associated with this room", type: [Number], example: [1, 2, 3], required: false })
+    roomImageIds? : number[];
+
     @ApiProperty({ description : "Date of creation" })
     createdAt : Date;
 

@@ -35,7 +35,13 @@ export class RoomImageService implements IRoomImageServicePort {
     }
 
     async findOne(id : IdNumberParamDto) : Promise<RoomImageDetailsDto | null>{
-        return await this.roomImageRepository.findById(id.id);
+        const roomImage = await this.roomImageRepository.findById(id.id);
+
+        if (roomImage === null) {
+            return null;
+        }
+        roomImage.imageUrl = await this.storageService.getFileUrl(roomImage.imageUrl) || roomImage.imageUrl;
+        return roomImage;
     }
 
     async update(id : IdNumberParamDto, createAndUpdateRoomImageDto : CreateAndUpdateRoomImageDto) : Promise<RoomImageDetailsDto | null> {
@@ -55,12 +61,10 @@ export class RoomImageService implements IRoomImageServicePort {
 
         await this.storageService.uploadFile(fileName, file.buffer);
 
-        const imageUrl = await this.storageService.getFileUrl(fileName);
-
         const roomImageToCreate = this.roomImageRepository.create({
             roomId: body.roomId,
             displayOrder: body.displayOrder,
-            imageUrl
+            imageUrl: fileName
         });
         return await this.roomImageRepository.save(roomImageToCreate);
     }

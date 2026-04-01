@@ -1,0 +1,54 @@
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
+import { Screening } from "./screening.entity";
+
+@Entity("movie")
+export class Movie {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column({
+        type: "varchar",
+        length: 255,
+        nullable: false
+    })
+    title: string;
+
+    @Column({
+        type: "text",
+        nullable: false
+    })
+    synopsis: string;
+
+    @Column({
+        type: "int",
+        nullable: false
+    })
+    durationMinutes: number;
+
+    @Column({
+        type: "date",
+        nullable: false
+    })
+    releaseDate: Date;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
+
+    @OneToMany(() => Screening, (screening) => screening.movie)
+    screenings: Screening[];
+}

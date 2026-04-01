@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch, Delete, Req, UseGuards, SetMetadata, Inject, Query, HttpCode, HttpStatus } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Patch, Delete, Req, UseGuards, Inject, Query, HttpCode, HttpStatus } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { CreateEmployeeDto, CreateScheduleDto, EmployeeQueryDto, ScheduleQueryDto, UpdateEmployeeDto, UpdateScheduleDto } from "../../core/domain/employee/dto/employee.dto";
 import * as employeeServicePort from "../../core/domain/employee/port/employee-service.port";
@@ -7,8 +7,7 @@ import { RolesGuard } from "../../core/application/cinema/auth/guards/roles.guar
 import { EMPLOYEE_SERVICE } from "../../core/domain/global/token";
 import { IdUuidParamDto } from "../../core/domain/global/dto/global.dto";
 import express from "express";
-
-export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+import { Roles } from "../../core/application/cinema/auth/decorators/roles.decorator";
 
 @ApiTags("Employees")
 @Controller("employees")

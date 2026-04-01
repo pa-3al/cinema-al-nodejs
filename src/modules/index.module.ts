@@ -6,6 +6,8 @@ import { RoomImageModule } from './room-image/room-image.module';
 import { AuthModule } from './auth/auth.module';
 import { EmployeeModule } from './employee/employee.module';
 import { UserModule } from './user/user.module';
+import { MovieModule } from './movie/movie.module';
+import { ScreeningModule } from './screening/screening.module';
 
 @Module({
     imports: [
@@ -15,7 +17,9 @@ import { UserModule } from './user/user.module';
         RoomImageModule,
         AuthModule,
         EmployeeModule,
-        UserModule
+        UserModule,
+        MovieModule,
+        ScreeningModule
     ],
 })
 export class Modules {}

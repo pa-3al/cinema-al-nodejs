@@ -1,6 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsIn, IsInt, Min } from "class-validator";
+import { IsEnum, IsInt, Min } from "class-validator";
+
+export enum TicketType {
+    SOLO = "solo",
+    TEN = "ten",
+}
 
 export class TicketUsageDetailDto {
 
@@ -17,7 +22,7 @@ export class TicketDetailDto {
     id: number;
 
     @ApiProperty({ description: "Ticket type", example: "solo" })
-    ticketType: string;
+    ticketType: TicketType;
 
     @ApiProperty({ description: "Total number of uses allowed", example: 1 })
     totalUses: number;
@@ -52,9 +57,9 @@ export class AllTicketDto {
 
 export class CreateTicketDto {
 
-    @ApiProperty({ description: "Ticket type", example: "solo", enum: ["solo", "ten"] })
-    @IsIn(["solo", "ten"])
-    ticketType: string;
+    @ApiProperty({ description: "Ticket type", example: "solo", enum: TicketType })
+    @IsEnum(TicketType)
+    ticketType: TicketType;
 }
 
 export class UseTicketDto {

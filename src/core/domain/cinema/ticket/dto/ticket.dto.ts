@@ -7,9 +7,6 @@ export class TicketUsageDetailDto {
     @ApiProperty({ description: "Used screening identifier", example: 42 })
     screeningId: number;
 
-    @ApiProperty({ description: "Used screening start time", example: "2026-04-03T19:30:00.000Z" })
-    screeningStartTime: Date;
-
     @ApiProperty({ description: "Usage timestamp", example: "2026-04-03T18:50:00.000Z" })
     usedAt: Date;
 }

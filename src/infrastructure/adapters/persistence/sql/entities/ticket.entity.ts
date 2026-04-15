@@ -17,7 +17,7 @@ export enum TicketType {
     TEN = "ten",
 }
 
-@Entity("ticket")
+@Entity("tickets")
 export class Ticket {
 
     @PrimaryGeneratedColumn()

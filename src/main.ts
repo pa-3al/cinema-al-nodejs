@@ -3,10 +3,13 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
+import {LokiLogger} from "./infrastructure/adapters/logging/logging.service";
 
 async function bootstrap() {
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger : new LokiLogger()
+  });
 
   app.enableCors({
     origin: true,

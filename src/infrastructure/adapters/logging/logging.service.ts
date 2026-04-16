@@ -9,7 +9,6 @@ export class LokiLogger extends ConsoleLogger {
     app: process.env.NESTJS_APP || "nestjs",
     env: process.env.NODE_ENV || "development",
   };
-  private static gzip = false;
   private static onLokiError: (error: any) => void = () => {};
 
   private static sendLokiRequest = (

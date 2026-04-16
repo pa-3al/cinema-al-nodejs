@@ -25,6 +25,16 @@ export class SqlScreeningRepository implements IScreeningRepositoryPort {
         return await this.screeningRepository.save(screening);
     }
 
+    async findById(id: number): Promise<Screening | null> {
+        return await this.screeningRepository.findOne({
+            where: { id },
+            relations: {
+                movie: true,
+                room: true,
+            },
+        });
+    }
+
     async findAll(filters: IScreeningFilters): Promise<getAllResponse<Screening>> {
         const query = this.screeningRepository
             .createQueryBuilder("screening")

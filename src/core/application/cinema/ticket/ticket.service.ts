@@ -45,10 +45,12 @@ export class TicketService implements ITicketServicePort {
             throw new NotFoundException(`User with id ${userId} not found`);
         }
 
-        const saved = await this.ticketRepository.save({
+        const created = this.ticketRepository.create({
             ticketType: ticket.ticketType,
             user,
         });
+
+        const saved = await this.ticketRepository.save(created);
 
         const detailed = await this.ticketRepository.findOneWithUsages(saved.id);
 

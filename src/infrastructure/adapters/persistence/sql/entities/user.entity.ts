@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import {RefreshToken} from "./refresh-tokens.entity";
 import {Employee} from "./employee.entity";
+import { Ticket } from "./ticket.entity";
 
 @Entity("users")
 export class User{
@@ -70,6 +71,9 @@ export class User{
 
     @OneToMany(() => RefreshToken, (refreshTokens) => refreshTokens.user)
     refreshTokens: RefreshToken[];
+
+    @OneToMany(() => Ticket, (ticket) => ticket.user)
+    tickets: Ticket[];
 
     @OneToOne(() => Employee, (employee) => employee.user)
     employee: Employee;

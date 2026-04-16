@@ -5,11 +5,13 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import { Movie } from "./movie.entity";
 import { Room } from "./room.entity";
+import { TicketUsage } from "./ticket-usage.entity";
 
 @Entity("screening")
 export class Screening {
@@ -45,4 +47,7 @@ export class Screening {
     @ManyToOne(() => Room, (room) => room.screenings, { nullable: false })
     @JoinColumn({ name: "room_id" })
     room: Room;
+
+    @OneToMany(() => TicketUsage, (ticketUsage) => ticketUsage.screening)
+    ticketUsages: TicketUsage[];
 }

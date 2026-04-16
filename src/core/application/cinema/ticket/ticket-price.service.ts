@@ -25,12 +25,13 @@ export class TicketPriceService implements ITicketPriceServicePort {
         const startActivity = new Date(ticketPrice.startActivity);
         const endActivity = new Date(ticketPrice.endActivity);
 
-        const saved = await this.ticketPriceRepository.save({
+        const created = this.ticketPriceRepository.create({
             price: ticketPrice.price,
             startActivity,
             endActivity,
             projectionType,
         });
+        const saved = await this.ticketPriceRepository.save(created);
 
         return {
             id: saved.id,

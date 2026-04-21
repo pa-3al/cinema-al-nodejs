@@ -1,24 +1,41 @@
-import { Controller, Get, Req, UseGuards, Inject } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
+import { Controller, Get, Post, Body, UseGuards, Request } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../core/application/cinema/auth/guards/jwt-auth.guard";
-import express from "express";
 import * as userServicePort from "../../core/domain/user/port/user-service.port";
 import {USER_SERVICE} from "../../core/domain/global/token";
+import {Inject} from "@nestjs/common";
+import {MoneyOperationDto, TransactionDetailDto} from "../../core/domain/user/dto/transaction.dto";
 
-@ApiTags("Users")
-@Controller("users")
-@UseGuards(JwtAuthGuard)
+@ApiTags('Users')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('users')
 export class UserController {
     constructor(
         @Inject(USER_SERVICE) private readonly userService: userServicePort.IUserServicePort
-    ) {
+    ) {}
+
+    @ApiOperation({ summary: "Récupérer mon profil et mon solde" })
+    @Get('me')
+    async getMe(@Request() req) {
+        return await this.userService.findById(req.user.id);
     }
 
-    @Get("me")
-    @ApiOperation({summary: "Get current user profile"})
-    async getProfile(@Req() req: express.Request) {
-        const userId = (req as any).user.id;
-        return this.userService.findById(userId);
+    @ApiOperation({ summary: "Déposer de l'argent" })
+    @Post('me/deposit')
+    async deposit(@Request() req, @Body() dto: MoneyOperationDto) {
+        return await this.userService.deposit(req.user.id, dto.amount);
+    }
+
+    @ApiOperation({ summary: "Retirer de l'argent" })
+    @Post('me/withdraw')
+    async withdraw(@Request() req, @Body() dto: MoneyOperationDto) {
+        return await this.userService.withdraw(req.user.id, dto.amount);
+    }
+
+    @ApiOperation({ summary: "Consulter mon historique de transactions" })
+    @Get('me/transactions')
+    async getTransactions(@Request() req): Promise<TransactionDetailDto[]> {
+        return await this.userService.getTransactions(req.user.id);
     }
 }

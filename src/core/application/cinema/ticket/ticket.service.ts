@@ -1,13 +1,14 @@
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { ITicketServicePort } from "../../../domain/cinema/ticket/port/ticket-service.port";
 import * as ticketRepositoryPort from "../../../domain/cinema/ticket/port/ticket-repository.port";
-import { SCREENING_REPOSITORY, TICKET_REPOSITORY, USER_REPOSITORY } from "../../../domain/global/token";
+import { SCREENING_REPOSITORY, TICKET_REPOSITORY, USER_REPOSITORY, TRANSACTION_REPOSITORY } from "../../../domain/global/token";
 import * as userRepositoryPort from "../../../domain/user/port/user-repository.port";
 import * as screeningRepositoryPort from "../../../domain/cinema/screening/port/screening-repository.port";
 import { AllTicketDto, CreateTicketDto, TicketDetailDto, UseTicketDto } from "../../../domain/cinema/ticket/dto/ticket.dto";
 import { IdNumberParamDto, PaginationQueryDto } from "../../../domain/global/dto/global.dto";
 import { TicketType } from "../../../../infrastructure/adapters/persistence/sql/entities/ticket.entity";
 import { Ticket } from "../../../../infrastructure/adapters/persistence/sql/entities/ticket.entity";
+import * as transactionRepositoryPort from "../../../domain/user/port/transaction-repository.port";
 
 @Injectable()
 export class TicketService implements ITicketServicePort {
@@ -19,6 +20,8 @@ export class TicketService implements ITicketServicePort {
         private readonly userRepository: userRepositoryPort.UserRepositoryPort,
         @Inject(SCREENING_REPOSITORY as symbol)
         private readonly screeningRepository: screeningRepositoryPort.IScreeningRepositoryPort,
+        @Inject(TRANSACTION_REPOSITORY as symbol)
+        private readonly transactionRepository: transactionRepositoryPort.ITransactionRepositoryPort,
     ) {}
 
     private toDto(ticket: Ticket): TicketDetailDto {
@@ -44,6 +47,22 @@ export class TicketService implements ITicketServicePort {
         if (!user) {
             throw new NotFoundException(`User with id ${userId} not found`);
         }
+
+        const price = ticket.ticketType === TicketType.TEN ? 80 : 10;
+
+        if (user.balance < price) {
+            throw new BadRequestException("Solde insuffisant pour acheter ce billet");
+        }
+
+        user.balance -= price;
+        await this.userRepository.save(user);
+
+        const transaction = this.transactionRepository.create({
+            type: 'ticket_purchase',
+            amount: -price,
+            user: user
+        });
+        await this.transactionRepository.save(transaction);
 
         const created = this.ticketRepository.create({
             ticketType: ticket.ticketType,

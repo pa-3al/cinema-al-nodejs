@@ -6,7 +6,7 @@ import {
     IScreeningRepositoryPort
 } from "src/core/domain/cinema/screening/port/screening-repository.port";
 import { getAllResponse } from "src/core/domain/global/types/global.type";
-import { Repository } from "typeorm";
+import {LessThan, MoreThan, Repository} from "typeorm";
 import { Screening } from "../entities/screening.entity";
 
 @Injectable()
@@ -96,5 +96,16 @@ export class SqlScreeningRepository implements IScreeningRepositoryPort {
             .andWhere("screening.startTime <= :endDate", { endDate })
             .orderBy("screening.startTime", "ASC")
             .getMany();
+    }
+
+    async hasMovieConflict(params: { movieId: number, startTime: Date, endTime: Date }): Promise<boolean> {
+        const conflict = await this.screeningRepository.findOne({
+            where: {
+                movie: { id: params.movieId },
+                startTime: LessThan(params.endTime),
+                endTime: MoreThan(params.startTime),
+            }
+        });
+        return !!conflict;
     }
 }

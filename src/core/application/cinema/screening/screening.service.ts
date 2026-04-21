@@ -41,7 +41,7 @@ export class ScreeningService implements IScreeningServicePort {
 
     private buildEndTime(startDate: Date, movie: Movie): Date {
         if (movie.durationMinutes <= 0) {
-            throw new BadRequestException("Movie duration must be strictly positive");
+            throw new BadRequestException("La durée du film doit être strictement positive");
         }
         const totalMinutes = movie.durationMinutes + this.CLEANING_BUFFER_MINUTES;
         return new Date(startDate.getTime() + totalMinutes * 60 * 1000);
@@ -49,13 +49,13 @@ export class ScreeningService implements IScreeningServicePort {
 
     private ensureRoomIsAvailable(room: Room): void {
         if (room.isMaintenance) {
-            throw new BadRequestException("The selected room is currently in maintenance");
+            throw new BadRequestException("La salle sélectionnée est actuellement en maintenance");
         }
     }
 
     private validateDateValue(date: Date): void {
         if (Number.isNaN(date.getTime())) {
-            throw new BadRequestException("Invalid startTime");
+            throw new BadRequestException("Date de début (startTime) invalide");
         }
     }
 
@@ -66,47 +66,64 @@ export class ScreeningService implements IScreeningServicePort {
             startTime.getDate() === endTime.getDate();
 
         if (!isSameDay) {
-            throw new BadRequestException("A screening must start and end on the same day");
+            throw new BadRequestException("Une séance doit commencer et se terminer le même jour");
         }
 
         const dayOfWeek = startTime.getDay();
         if (dayOfWeek < 1 || dayOfWeek > 5) {
-            throw new BadRequestException("Screenings are allowed only from Monday to Friday");
+            throw new BadRequestException("Les séances ne sont autorisées que du lundi au vendredi");
         }
 
         const startMinutes = startTime.getHours() * 60 + startTime.getMinutes();
         const endMinutes = endTime.getHours() * 60 + endTime.getMinutes();
 
         if (startMinutes < this.OPENING_START_MINUTES || endMinutes > this.OPENING_END_MINUTES) {
-            throw new BadRequestException("Screenings must be between 09:00 and 20:00");
+            throw new BadRequestException("Les séances (incluant le nettoyage) doivent se dérouler entre 09:00 et 20:00");
         }
     }
 
     async create(screening: CreateScreeningDto): Promise<ScreeningDetailDto> {
         const movie = await this.movieRepository.findById(screening.movieId);
         if (!movie) {
-            throw new NotFoundException("Movie not found");
+            throw new NotFoundException("Film introuvable");
         }
 
         const room = await this.roomRepository.findById(screening.roomId);
         if (!room) {
-            throw new NotFoundException("Room not found");
+            throw new NotFoundException("Salle introuvable");
         }
         this.ensureRoomIsAvailable(room);
 
         const startTime = new Date(screening.startTime);
         this.validateDateValue(startTime);
+
+        const oneMonthFromNow = new Date();
+        oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+        if (startTime < oneMonthFromNow) {
+            throw new BadRequestException("Les séances doivent être planifiées au moins un mois à l'avance");
+        }
+
         const endTime = this.buildEndTime(startTime, movie);
         this.validateOpeningHours(startTime, endTime);
 
-        const hasConflict = await this.screeningRepository.hasRoomConflict({
+        const hasRoomConflict = await this.screeningRepository.hasRoomConflict({
             roomId: room.id,
             startTime,
             endTime
         });
 
-        if (hasConflict) {
-            throw new ConflictException("A screening already exists in this room for the selected time slot");
+        if (hasRoomConflict) {
+            throw new ConflictException("Screening already exists in this room at this moment");
+        }
+
+        const hasMovieConflict = await this.screeningRepository.hasMovieConflict({
+            movieId: movie.id,
+            startTime,
+            endTime
+        });
+
+        if (hasMovieConflict) {
+            throw new ConflictException("Movie Already in another rooms");
         }
 
         const screeningCreated = this.screeningRepository.create({
@@ -128,15 +145,15 @@ export class ScreeningService implements IScreeningServicePort {
         const endDate = query.endDate ? new Date(query.endDate) : undefined;
 
         if (startDate && Number.isNaN(startDate.getTime())) {
-            throw new BadRequestException("Invalid startDate");
+            throw new BadRequestException("invalid startDate");
         }
 
         if (endDate && Number.isNaN(endDate.getTime())) {
-            throw new BadRequestException("Invalid endDate");
+            throw new BadRequestException("invalid endDate");
         }
 
         if (startDate && endDate && startDate > endDate) {
-            throw new BadRequestException("endDate must be after startDate");
+            throw new BadRequestException("endDate must be higher than startDate");
         }
 
         const screenings = await this.screeningRepository.findAll({

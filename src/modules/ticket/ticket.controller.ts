@@ -8,6 +8,8 @@ import { AllTicketDto, CreateTicketDto, TicketDetailDto, UseTicketDto } from "..
 
 @ApiTags("Tickets")
 @Controller("tickets")
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class TicketController {
 
     constructor(
@@ -16,8 +18,6 @@ export class TicketController {
     ) {}
 
     @Post()
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @ApiOperation({ summary: "Purchase a ticket for the current user" })
     @ApiCreatedResponse({ type: TicketDetailDto })
     @ApiBody({ type: CreateTicketDto })
@@ -27,8 +27,6 @@ export class TicketController {
     }
 
     @Get("me")
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @ApiOperation({ summary: "Get the authenticated user's tickets" })
     @ApiOkResponse({ type: AllTicketDto })
     async findMyTickets(@Req() req: { user: { id: string } }, @Query() query: PaginationQueryDto) {
@@ -37,8 +35,6 @@ export class TicketController {
     }
 
     @Get(":id")
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @ApiOperation({ summary: "Get one ticket owned by the authenticated user" })
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: TicketDetailDto })
@@ -52,8 +48,6 @@ export class TicketController {
     }
 
     @Post(":id/use")
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @ApiOperation({ summary: "Validate a ticket for a screening" })
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: TicketDetailDto })

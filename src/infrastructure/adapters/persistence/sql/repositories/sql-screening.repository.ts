@@ -6,7 +6,7 @@ import {
     IScreeningRepositoryPort
 } from "src/core/domain/cinema/screening/port/screening-repository.port";
 import { getAllResponse } from "src/core/domain/global/types/global.type";
-import {LessThan, MoreThan, Repository} from "typeorm";
+import { LessThan, MoreThan, Not, Repository } from "typeorm";
 import { Screening } from "../entities/screening.entity";
 
 @Injectable()
@@ -73,6 +73,26 @@ export class SqlScreeningRepository implements IScreeningRepositoryPort {
         };
     }
 
+    async update(id: number, screening: Partial<Screening>): Promise<Screening | null> {
+        const screeningFind = await this.findById(id);
+        if (!screeningFind) return null;
+
+        if (screening.movie !== undefined) screeningFind.movie = screening.movie;
+        if (screening.room !== undefined) screeningFind.room = screening.room;
+        if (screening.startTime !== undefined) screeningFind.startTime = screening.startTime;
+        if (screening.endTime !== undefined) screeningFind.endTime = screening.endTime;
+
+        return await this.screeningRepository.save(screeningFind);
+    }
+
+    async delete(id: number): Promise<Screening | null> {
+        const screening = await this.findById(id);
+        if (!screening) return null;
+
+        await this.screeningRepository.softRemove(screening);
+        return screening;
+    }
+
     async hasRoomConflict(filter: IRoomConflictFilter): Promise<boolean> {
         const query = this.screeningRepository
             .createQueryBuilder("screening")
@@ -81,7 +101,26 @@ export class SqlScreeningRepository implements IScreeningRepositoryPort {
             .andWhere("screening.startTime < :endTime", { endTime: filter.endTime })
             .andWhere("screening.endTime > :startTime", { startTime: filter.startTime });
 
+        if (filter.excludeScreeningId) {
+            query.andWhere("screening.id != :excludeId", { excludeId: filter.excludeScreeningId });
+        }
+
         const conflict = await query.getOne();
+        return !!conflict;
+    }
+
+    async hasMovieConflict(params: { movieId: number, startTime: Date, endTime: Date, excludeScreeningId?: number }): Promise<boolean> {
+        const whereClause: any = {
+            movie: { id: params.movieId },
+            startTime: LessThan(params.endTime),
+            endTime: MoreThan(params.startTime),
+        };
+
+        if (params.excludeScreeningId) {
+            whereClause.id = Not(params.excludeScreeningId);
+        }
+
+        const conflict = await this.screeningRepository.findOne({ where: whereClause });
         return !!conflict;
     }
 
@@ -96,16 +135,5 @@ export class SqlScreeningRepository implements IScreeningRepositoryPort {
             .andWhere("screening.startTime <= :endDate", { endDate })
             .orderBy("screening.startTime", "ASC")
             .getMany();
-    }
-
-    async hasMovieConflict(params: { movieId: number, startTime: Date, endTime: Date }): Promise<boolean> {
-        const conflict = await this.screeningRepository.findOne({
-            where: {
-                movie: { id: params.movieId },
-                startTime: LessThan(params.endTime),
-                endTime: MoreThan(params.startTime),
-            }
-        });
-        return !!conflict;
     }
 }

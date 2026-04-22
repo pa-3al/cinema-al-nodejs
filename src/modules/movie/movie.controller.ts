@@ -34,6 +34,8 @@ import {FileInterceptor} from "@nestjs/platform-express";
 
 @ApiTags("Movies")
 @Controller("movies")
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class MovieController {
 
     constructor(
@@ -42,11 +44,9 @@ export class MovieController {
     ) {}
 
     @Post()
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("employee", "super_admin")
     @UseInterceptors(FileInterceptor('poster'))
     @ApiConsumes('multipart/form-data')
-    @ApiBearerAuth()
     @ApiOperation({ summary: "Create a movie (employee or super_admin only)" })
     @ApiCreatedResponse({ type: MovieDetailDto })
     @ApiBody({ type: CreateAndUpdateMovieDto })
@@ -98,9 +98,7 @@ export class MovieController {
     }
 
     @Patch(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("employee", "super_admin")
-    @ApiBearerAuth()
     @ApiOperation({ summary: "Update a movie (employee or super_admin only)" })
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: MovieDetailDto })
@@ -121,9 +119,7 @@ export class MovieController {
     }
 
     @Delete(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("employee", "super_admin")
-    @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Delete a movie (employee or super_admin only)" })
     @ApiParam({ name: "id", type: Number, example: 1 })

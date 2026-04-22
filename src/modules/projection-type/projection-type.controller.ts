@@ -10,7 +10,7 @@ import {
     Query,
     Delete,
     HttpCode,
-    HttpStatus
+    HttpStatus, UseGuards
 } from "@nestjs/common";
 import {
     ApiTags,
@@ -19,7 +19,7 @@ import {
     ApiOkResponse,
     ApiNotFoundResponse,
     ApiParam,
-    ApiBody
+    ApiBody, ApiBearerAuth
 } from "@nestjs/swagger";
 import { PROJECTION_TYPE_SERVICE } from "../../core/domain/global/token";
 import * as projectionTypeServicePort from "../../core/domain/cinema/projection-type/port/projection-type-service.port";
@@ -29,9 +29,14 @@ import {
     ProjectionTypeDetailDto,
     AllProjectionTypeDto
 } from "../../core/domain/cinema/projection-type/dto/projection-type.dto";
+import {JwtAuthGuard} from "../../core/application/cinema/auth/guards/jwt-auth.guard";
+import {RolesGuard} from "../../core/application/cinema/auth/guards/roles.guard";
+import {Roles} from "../../core/application/cinema/auth/decorators/roles.decorator";
 
 @ApiTags("Projection Types")
 @Controller("projection-types")
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class ProjectionTypeController {
     constructor(
         @Inject(PROJECTION_TYPE_SERVICE)
@@ -40,6 +45,7 @@ export class ProjectionTypeController {
 
     @Post()
     @ApiOperation({ summary: "Create a new projection type" })
+    @Roles("employee", "super_admin")
     @ApiCreatedResponse({ type: ProjectionTypeDetailDto })
     @ApiBody({ type: CreateAndUpdateProjectionTypeDto })
     async create(@Body() body: CreateAndUpdateProjectionTypeDto) {
@@ -68,6 +74,7 @@ export class ProjectionTypeController {
 
     @Patch(":id")
     @ApiOperation({ summary: "Update a projection type" })
+    @Roles("employee", "super_admin")
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: ProjectionTypeDetailDto })
     @ApiNotFoundResponse({ description: "Projection type not found" })
@@ -86,6 +93,7 @@ export class ProjectionTypeController {
     @Delete(":id")
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Soft delete a projection type" })
+    @Roles("employee", "super_admin")
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: ProjectionTypeDetailDto })
     @ApiNotFoundResponse({ description: "Projection type not found" })

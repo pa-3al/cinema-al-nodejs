@@ -14,6 +14,7 @@ export interface IRoomConflictFilter {
     roomId: number;
     startTime: Date;
     endTime: Date;
+    excludeScreeningId?: number;
 }
 
 export interface IScreeningRepositoryPort {
@@ -21,7 +22,9 @@ export interface IScreeningRepositoryPort {
     save(screening: Partial<Screening>): Promise<Screening>;
     findById(id: number): Promise<Screening | null>;
     findAll(filters: IScreeningFilters): Promise<getAllResponse<Screening>>;
+    update(id: number, screening: Partial<Screening>): Promise<Screening | null>;
+    delete(id: number): Promise<Screening | null>;
     hasRoomConflict(filter: IRoomConflictFilter): Promise<boolean>;
-    hasMovieConflict(params: { movieId: number, startTime: Date, endTime: Date }): Promise<boolean>;
+    hasMovieConflict(params: { movieId: number, startTime: Date, endTime: Date, excludeScreeningId?: number }): Promise<boolean>;
     findByMovieIdAndDateRange(movieId: number, startDate: Date, endDate: Date): Promise<Screening[]>;
 }

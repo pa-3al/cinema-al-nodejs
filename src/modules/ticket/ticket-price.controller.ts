@@ -8,16 +8,29 @@ import {
     Param,
     Patch,
     Post,
-    Query,
+    Query, UseGuards,
 } from "@nestjs/common";
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiCreatedResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiParam,
+    ApiTags
+} from "@nestjs/swagger";
 import { IdNumberParamDto, PaginationQueryDto } from "../../core/domain/global/dto/global.dto";
 import { TICKET_PRICE_SERVICE } from "../../core/domain/global/token";
 import * as ticketPriceServicePort from "../../core/domain/cinema/ticket/port/ticket-price-service.port";
 import { AllTicketPriceDto, CreateAndUpdateTicketPriceDto, TicketPriceDetailDto } from "../../core/domain/cinema/ticket/dto/ticket-price.dto";
+import {JwtAuthGuard} from "../../core/application/cinema/auth/guards/jwt-auth.guard";
+import {RolesGuard} from "../../core/application/cinema/auth/guards/roles.guard";
+import {Roles} from "../../core/application/cinema/auth/decorators/roles.decorator";
 
 @ApiTags("Ticket Prices")
 @Controller("ticket-prices")
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class TicketPriceController {
 
     constructor(
@@ -26,6 +39,7 @@ export class TicketPriceController {
     ) {}
 
     @Post()
+    @Roles("employee", "super_admin")
     @ApiOperation({ summary: "Create a ticket price" })
     @ApiCreatedResponse({ type: TicketPriceDetailDto })
     @ApiBody({ type: CreateAndUpdateTicketPriceDto })
@@ -53,6 +67,7 @@ export class TicketPriceController {
     }
 
     @Patch(":id")
+    @Roles("employee", "super_admin")
     @ApiOperation({ summary: "Update a ticket price" })
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: TicketPriceDetailDto })
@@ -66,6 +81,7 @@ export class TicketPriceController {
     }
 
     @Delete(":id")
+    @Roles("employee", "super_admin")
     @ApiOperation({ summary: "Soft delete a ticket price" })
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: TicketPriceDetailDto })

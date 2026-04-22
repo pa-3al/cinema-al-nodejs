@@ -10,9 +10,10 @@ import {
     Param,
     Patch,
     Post,
-    Query
+    Query, UseGuards
 } from "@nestjs/common";
 import {
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiNotFoundResponse,
@@ -26,9 +27,14 @@ import type { IRoomServicePort } from "src/core/domain/cinema/room/port/room-ser
 import { IdNumberParamDto, PaginationQueryDto } from "src/core/domain/global/dto/global.dto";
 import { ROOM_SERVICE } from "src/core/domain/global/token";
 import { Room } from "src/infrastructure/adapters/persistence/sql/entities/room.entity";
+import {JwtAuthGuard} from "../../core/application/cinema/auth/guards/jwt-auth.guard";
+import {RolesGuard} from "../../core/application/cinema/auth/guards/roles.guard";
+import {Roles} from "../../core/application/cinema/auth/decorators/roles.decorator";
 
 @ApiTags('Room')
 @Controller('rooms')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class RoomController {
     constructor (
         @Inject(ROOM_SERVICE)
@@ -37,6 +43,7 @@ export class RoomController {
 
     @Post()
     @ApiOperation({summary: "Create a new room"})
+    @Roles("employee", "super_admin")
     @ApiCreatedResponse({type : Room})
     @ApiBody({ type : CreateAndUpdateRoomDto})
     async create(@Body() body : CreateAndUpdateRoomDto) {
@@ -66,6 +73,7 @@ export class RoomController {
 
     @Patch(':id')
     @ApiOperation({ summary: 'Update a movie genre' })
+    @Roles("employee", "super_admin")
     @ApiParam({ name: 'id', type: Number, example: 1 })
     @ApiOkResponse({ type: RoomDetailDto })
     @ApiNotFoundResponse({ description: 'room not found' })
@@ -83,6 +91,7 @@ export class RoomController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.OK)
+    @Roles("employee", "super_admin")
     @ApiOperation({ summary: 'Soft delete a room' })
     @ApiParam({ name: 'id', type: Number, example: 1 })
     @ApiOkResponse({ type: RoomDetailDto })

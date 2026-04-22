@@ -71,6 +71,25 @@ export class CreateScreeningDto {
     startTime: string;
 }
 
+export class UpdateScreeningDto {
+    @ApiPropertyOptional({ description: "Movie id", example: 1 })
+    @IsOptional()
+    @IsInt()
+    @Min(1)
+    movieId?: number;
+
+    @ApiPropertyOptional({ description: "Room id", example: 2 })
+    @IsOptional()
+    @IsInt()
+    @Min(1)
+    roomId?: number;
+
+    @ApiPropertyOptional({ description: "Start time (ISO 8601)", example: "2026-04-03T19:30:00.000Z" })
+    @IsOptional()
+    @IsDateString()
+    startTime?: string;
+}
+
 export class ScreeningQueryDto extends PaginationQueryDto {
 
     @ApiPropertyOptional({ description: "Filter by movie id", example: 1 })

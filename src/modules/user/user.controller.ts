@@ -49,4 +49,12 @@ export class UserController {
     async getUserActivity(@Param('id') id: string): Promise<UserActivityDto> {
         return await this.userService.getUserActivity(id);
     }
+
+    @ApiOperation({ summary: "Get transaction history of a specific user" })
+    @UseGuards(RolesGuard)
+    @Roles('employee', 'super_admin')
+    @Get(':id/transactions')
+    async getUserTransactions(@Param('id') id: string): Promise<TransactionDetailDto[]> {
+        return await this.userService.getTransactions(id);
+    }
 }

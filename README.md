@@ -129,6 +129,7 @@ npm run test
 
 ### Architecture & Code
 * **Architecture Hexagonale / Clean Architecture :** Découpage strict en couches (Core/Domain, Application, Infrastructure, Adapters, Ports) garantissant l'isolation de la logique métier.
+* **Tests unitaires :** Ajout de tests unitaires recouvrant l'ensemble des fichiers *.service.ts
 
 ### Planning des Employés (Super Admin)
 * Gestion des ressources humaines : affectation des employés sur des postes précis (Confiserie, Accueil, Projectionniste).
@@ -144,4 +145,4 @@ npm run test
 
 ### Mise en production 
 * **Load Balancing :** Mise en place sur le serveur de production de Load Balancing avec Caddy
-* **Mise en place d'une intégration continue :** Mise en place d'un Workflow Jenkins pour la mise en place de build
+* **Mise en place d'une intégration continue :** Mise en place d'un Workflow Jenkins pour la mise en place de build sur Jenkins

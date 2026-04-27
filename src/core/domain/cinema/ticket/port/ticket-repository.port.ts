@@ -8,4 +8,6 @@ export interface ITicketRepositoryPort {
     findOneWithUsages(id: number): Promise<Ticket | null>;
     findUserTickets(userId: string, { page, size }: { page: number; size: number }): Promise<getAllResponse<Ticket>>;
     saveUsage(usage: Partial<TicketUsage>): Promise<TicketUsage>;
+    buyTicketAtomic(userId: string, ticketType: string, price: number): Promise<Ticket>;
+    useTicketAtomic(ticketId: number, screeningId: number, totalUsesAllowed: number): Promise<TicketUsage>;
 }

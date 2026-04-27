@@ -21,7 +21,7 @@ export class TicketDetailDto {
     @ApiProperty({ description: "Unique identifier of the ticket", example: 1 })
     id: number;
 
-    @ApiProperty({ description: "Ticket type", example: "solo" })
+    @ApiProperty({ description: "Ticket type", example: TicketType.SOLO })
     ticketType: TicketType;
 
     @ApiProperty({ description: "Total number of uses allowed", example: 1 })
@@ -57,7 +57,7 @@ export class AllTicketDto {
 
 export class CreateTicketDto {
 
-    @ApiProperty({ description: "Ticket type", example: "solo", enum: TicketType })
+    @ApiProperty({ description: "Ticket type", example: TicketType.SOLO, enum: TicketType })
     @IsEnum(TicketType)
     ticketType: TicketType;
 }

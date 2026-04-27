@@ -7,10 +7,10 @@ export class RoomDetailDto {
     @ApiProperty({ description : "Unique identifier of the room", example: 1 })
     id : number;
 
-    @ApiProperty({ description : "Name of the room", example: "Room 1" })
+    @ApiProperty({ description : "Name of the room", example: "Absolute room" })
     name : string;
 
-    @ApiProperty({ description : "Description of the room", example: "A cozy room with comfortable seating" })
+    @ApiProperty({ description : "Description of the room", example: "An absolute room" })
     description : string;
 
     @ApiProperty({ description : "Capacity of the room", example: 50 })
@@ -55,10 +55,10 @@ export class AllRoomDto {
 
 export class CreateAndUpdateRoomDto {
 
-    @ApiProperty({ description : "Name of the room", example: "Room 1" })
+    @ApiProperty({ description : "Name of the room", example: "Absolute room" })
     name : string;
 
-    @ApiProperty({ description : "Description of the room", example: "A cozy room with comfortable seating" })
+    @ApiProperty({ description : "Description of the room", example: "An absolute room" })
     description : string;
 
     @ApiProperty({ description : "Capacity of the room", example: 50 })

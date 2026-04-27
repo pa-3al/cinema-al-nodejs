@@ -8,10 +8,10 @@ export class MovieDetailDto {
     @ApiProperty({ description: "Unique identifier of the movie", example: 1 })
     id: number;
 
-    @ApiProperty({ description: "Movie title", example: "Interstellar" })
+    @ApiProperty({ description: "Movie title", example: "Absolute Movie" })
     title: string;
 
-    @ApiProperty({ description: "Movie synopsis", example: "A team travels through a wormhole in space..." })
+    @ApiProperty({ description: "Movie synopsis", example: "An absolute movie about absolute adventure" })
     synopsis: string;
 
     @ApiProperty({ description: "Movie duration in minutes", example: 169 })
@@ -53,12 +53,12 @@ export class AllMovieDto {
 
 export class CreateAndUpdateMovieDto {
 
-    @ApiProperty({ description: "Movie title", example: "Interstellar" })
+    @ApiProperty({ description: "Movie title", example: "Absolute Movie" })
     @IsString()
     @MaxLength(255)
     title: string;
 
-    @ApiProperty({ description: "Movie synopsis", example: "A team travels through a wormhole in space..." })
+    @ApiProperty({ description: "Movie synopsis", example: "An absolute Movie" })
     @IsString()
     synopsis: string;
 

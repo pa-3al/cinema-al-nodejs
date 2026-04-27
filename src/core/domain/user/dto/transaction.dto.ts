@@ -21,3 +21,20 @@ export class TransactionDetailDto {
     @ApiProperty()
     createdAt: Date;
 }
+
+export class AllTransactionsDto {
+    @ApiProperty({ type: [TransactionDetailDto] })
+    data: TransactionDetailDto[];
+
+    @ApiProperty()
+    page: number;
+
+    @ApiProperty()
+    size: number;
+
+    @ApiProperty()
+    totalCount: number;
+
+    @ApiProperty()
+    totalPage: number;
+}

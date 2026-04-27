@@ -4,6 +4,9 @@ import { TRANSACTION_REPOSITORY, USER_REPOSITORY } from "../../../domain/global/
 import * as userRepositoryPort from "../../../domain/user/port/user-repository.port";
 import * as transactionRepositoryPort from "../../../domain/user/port/transaction-repository.port";
 import {UserActivityDto} from "../../../domain/user/dto/user-activity.dto";
+import {PaginationQueryDto} from "../../../domain/global/dto/global.dto";
+import {AllUsersDto} from "../../../domain/user/dto/user.dto";
+import {AllTransactionsDto} from "../../../domain/user/dto/transaction.dto";
 
 @Injectable()
 export class UserService implements IUserServicePort {
@@ -70,5 +73,40 @@ export class UserService implements IUserServicePort {
             throw new NotFoundException('User not found');
         }
         return stats;
+    }
+
+    async findAllUsers(pagination: PaginationQueryDto): Promise<AllUsersDto> {
+        const result = await this.userRepository.findAll(pagination);
+        return {
+            data: result.data.map(u => ({
+                id: u.id,
+                email: u.email,
+                firstname: u.firstname,
+                lastname: u.lastname,
+                role: u.role,
+                balance: u.balance,
+                createdAt: u.createdAt
+            })),
+            page: result.page,
+            size: result.size,
+            totalCount: result.totalCount,
+            totalPage: result.totalPage
+        };
+    }
+
+    async getAllTransactions(pagination: PaginationQueryDto): Promise<AllTransactionsDto> {
+        const result = await this.transactionRepository.findAll(pagination);
+        return {
+            data: result.data.map(t => ({
+                id: t.id,
+                type: t.type,
+                amount: t.amount,
+                createdAt: t.createdAt
+            })),
+            page: result.page,
+            size: result.size,
+            totalCount: result.totalCount,
+            totalPage: result.totalPage
+        };
     }
 }

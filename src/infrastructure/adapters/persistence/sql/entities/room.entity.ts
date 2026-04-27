@@ -27,6 +27,9 @@ export class Room {
     @CreateDateColumn()
     createdAt : Date;
 
+    @Column({ default: false })
+    isHandicapAccessible : boolean;
+
     @UpdateDateColumn()
     updatedAt : Date;
 

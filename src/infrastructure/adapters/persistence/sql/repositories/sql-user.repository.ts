@@ -4,6 +4,8 @@ import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { UserRepositoryPort } from "src/core/domain/user/port/user-repository.port";
 import {UserActivityDto} from "../../../../../core/domain/user/dto/user-activity.dto";
+import {PaginationQueryDto} from "../../../../../core/domain/global/dto/global.dto";
+import {getAllResponse} from "../../../../../core/domain/global/types/global.type";
 
 @Injectable()
 export class SqlUserRepository implements UserRepositoryPort {
@@ -72,6 +74,25 @@ export class SqlUserRepository implements UserRepositoryPort {
             ticketsBought,
             totalSpent,
             moviesSeen: Array.from(moviesSeen)
+        };
+    }
+
+    async findAll(pagination: PaginationQueryDto): Promise<getAllResponse<User>> {
+        const page = pagination.page || 1;
+        const size = pagination.size || 10;
+
+        const [data, totalCount] = await this.repository.findAndCount({
+            skip: (page - 1) * size,
+            take: size,
+            order: { createdAt: 'DESC' }
+        });
+
+        return {
+            data,
+            page,
+            size,
+            totalCount,
+            totalPage: Math.ceil(totalCount / size)
         };
     }
 }

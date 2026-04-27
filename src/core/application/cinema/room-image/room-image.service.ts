@@ -1,19 +1,23 @@
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
-import { AllRoomImageDto, CreateAndUpdateRoomImageDto, RoomImageDetailsDto, UploadRoomImageDto } from 'src/core/domain/cinema/room-image/dto/room-image.dto';
-import { ROOM_IMAGE_REPOSITORY, STORAGE_PORT } from 'src/core/domain/global/token';
-import type { IRoomImageRepositoryPort } from '../../../domain/cinema/room-image/port/room-image-repository.port';
-import { PaginationQueryDto, IdNumberParamDto } from '../../../domain/global/dto/global.dto';
-import { IRoomImageServicePort } from 'src/core/domain/cinema/room-image/port/room-image-service.port';
-import type { IStorageService } from 'src/core/domain/global/storage/port/storage-service.port';
+import {ROOM_IMAGE_REPOSITORY, STORAGE_PORT} from "../../../domain/global/token";
+import {IRoomImageServicePort} from "../../../domain/cinema/room-image/port/room-image-service.port";
+import * as roomImageRepositoryPort from "../../../domain/cinema/room-image/port/room-image-repository.port";
+import * as storageServicePort from "../../../domain/global/storage/port/storage-service.port";
+import {
+    AllRoomImageDto,
+    CreateAndUpdateRoomImageDto,
+    RoomImageDetailsDto, UploadRoomImageDto
+} from "../../../domain/cinema/room-image/dto/room-image.dto";
+import {IdNumberParamDto, PaginationQueryDto} from "../../../domain/global/dto/global.dto";
 
 @Injectable()
 export class RoomImageService implements IRoomImageServicePort {
 
-    constructor (
+    constructor(
         @Inject(ROOM_IMAGE_REPOSITORY)
-        private readonly roomImageRepository : IRoomImageRepositoryPort,
+        private readonly roomImageRepository: roomImageRepositoryPort.IRoomImageRepositoryPort,
         @Inject(STORAGE_PORT)
-        private readonly storageService : IStorageService
+        private readonly storageService: storageServicePort.IStorageService
     ){}
 
     async create(roomImage: CreateAndUpdateRoomImageDto): Promise<RoomImageDetailsDto> {

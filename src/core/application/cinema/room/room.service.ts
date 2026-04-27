@@ -1,12 +1,12 @@
 import {Inject, Injectable, NotFoundException} from "@nestjs/common";
-import { AllRoomDto, CreateAndUpdateRoomDto, RoomDetailDto } from "src/core/domain/cinema/room/dto/room.dto";
-import { IdNumberParamDto, PaginationQueryDto } from "src/core/domain/global/dto/global.dto";
-import {PROJECTION_TYPE_REPOSITORY, ROOM_REPOSITORY} from "src/core/domain/global/token";
-import { Room } from "src/infrastructure/adapters/persistence/sql/entities/room.entity";
 import * as projectionTypeRepositoryPort
     from "../../../domain/cinema/projection-type/port/projection-type-repository.port";
 import {IRoomServicePort} from "../../../domain/cinema/room/port/room-service.port";
 import * as roomRepositoryPort from "../../../domain/cinema/room/port/room-repository.port";
+import {PROJECTION_TYPE_REPOSITORY, ROOM_REPOSITORY} from "../../../domain/global/token";
+import {Room} from "../../../../infrastructure/adapters/persistence/sql/entities/room.entity";
+import {AllRoomDto, CreateAndUpdateRoomDto, RoomDetailDto} from "../../../domain/cinema/room/dto/room.dto";
+import {IdNumberParamDto, PaginationQueryDto} from "../../../domain/global/dto/global.dto";
 
 
 @Injectable()

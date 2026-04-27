@@ -1,19 +1,18 @@
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { IScreeningServicePort } from "src/core/domain/cinema/screening/port/screening-service.port";
-import { MOVIE_REPOSITORY, ROOM_REPOSITORY, SCREENING_REPOSITORY } from "src/core/domain/global/token";
-import type { IScreeningRepositoryPort } from "src/core/domain/cinema/screening/port/screening-repository.port";
-import type { IMovieRepositoryPort } from "src/core/domain/cinema/movie/port/movie-repository.port";
-import type { IRoomRepositoryPort } from "src/core/domain/cinema/room/port/room-repository.port";
+import {IScreeningServicePort} from "../../../domain/cinema/screening/port/screening-service.port";
+import {MOVIE_REPOSITORY, ROOM_REPOSITORY, SCREENING_REPOSITORY} from "../../../domain/global/token";
+import * as screeningRepositoryPort from "../../../domain/cinema/screening/port/screening-repository.port";
+import * as movieRepositoryPort from "../../../domain/cinema/movie/port/movie-repository.port";
+import * as roomRepositoryPort from "../../../domain/cinema/room/port/room-repository.port";
+import {Screening} from "../../../../infrastructure/adapters/persistence/sql/entities/screening.entity";
 import {
     AllScreeningDto,
     CreateScreeningDto,
     ScreeningDetailDto,
-    ScreeningQueryDto,
-    UpdateScreeningDto
-} from "src/core/domain/cinema/screening/dto/screening.dto";
-import { Screening } from "src/infrastructure/adapters/persistence/sql/entities/screening.entity";
-import { Movie } from "src/infrastructure/adapters/persistence/sql/entities/movie.entity";
-import { Room } from "src/infrastructure/adapters/persistence/sql/entities/room.entity";
+    ScreeningQueryDto, UpdateScreeningDto
+} from "../../../domain/cinema/screening/dto/screening.dto";
+import {Movie} from "../../../../infrastructure/adapters/persistence/sql/entities/movie.entity";
+import {Room} from "../../../../infrastructure/adapters/persistence/sql/entities/room.entity";
 import {IdNumberParamDto} from "../../../domain/global/dto/global.dto";
 
 @Injectable()
@@ -24,11 +23,11 @@ export class ScreeningService implements IScreeningServicePort {
 
     constructor(
         @Inject(SCREENING_REPOSITORY)
-        private readonly screeningRepository: IScreeningRepositoryPort,
+        private readonly screeningRepository: screeningRepositoryPort.IScreeningRepositoryPort,
         @Inject(MOVIE_REPOSITORY)
-        private readonly movieRepository: IMovieRepositoryPort,
+        private readonly movieRepository: movieRepositoryPort.IMovieRepositoryPort,
         @Inject(ROOM_REPOSITORY)
-        private readonly roomRepository: IRoomRepositoryPort
+        private readonly roomRepository: roomRepositoryPort.IRoomRepositoryPort
     ) {}
 
     private mapScreeningToDetailDto(screening: Screening): ScreeningDetailDto {

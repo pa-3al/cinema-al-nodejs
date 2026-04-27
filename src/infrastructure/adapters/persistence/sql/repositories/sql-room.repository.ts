@@ -1,48 +1,55 @@
-import { Injectable } from "@nestjs/common";
-import { getAllResponse } from "src/core/domain/global/types/global.type";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Room } from "../entities/room.entity";
-import { Repository } from "typeorm";
-import { IRoomRepositoryPort } from "src/core/domain/cinema/room/port/room-repository.port";
+import {Injectable} from "@nestjs/common";
+import {getAllResponse} from "src/core/domain/global/types/global.type";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Room} from "../entities/room.entity";
+import {Repository} from "typeorm";
+import {IRoomRepositoryPort} from "src/core/domain/cinema/room/port/room-repository.port";
 
 @Injectable()
-export class SqlRoomRepository implements IRoomRepositoryPort{
+export class SqlRoomRepository implements IRoomRepositoryPort {
 
-    constructor (
+    constructor(
         @InjectRepository(Room)
-        private readonly roomRepository : Repository<Room>
-    ) {}
+        private readonly roomRepository: Repository<Room>
+    ) {
+    }
 
     create(room: Partial<Room>): Room {
         return this.roomRepository.create(room)
 
     }
 
-    async findAll({ page, size }: { page: number; size: number; }): Promise<getAllResponse<Room>> {
-        const query = this.roomRepository.createQueryBuilder();
+    async findAll({page, size}: { page: number; size: number; }): Promise<getAllResponse<Room>> {
+        const query = this.roomRepository.createQueryBuilder("room")
+            .leftJoinAndSelect("room.projectionType", "projectionType")
+            .leftJoinAndSelect("room.roomImage", "roomImage");
+
         query.skip((page - 1) * size);
         query.take(size);
 
         const [room, totalCount] = await query.getManyAndCount();
 
         return {
-            data : room,
-            size : size,
+            data: room,
+            size: size,
             page,
             totalCount,
-            totalPage : Math.ceil(totalCount / size)
+            totalPage: Math.ceil(totalCount / size)
         }
     }
 
     async findById(id: number): Promise<Room | null> {
         return await this.roomRepository.findOne({
-            where: { id },
-            relations: ['roomImage']
+            where: {id},
+            relations: ['roomImage', 'projectionType']
         });
     }
 
     async update(id: number, room: Partial<Room>): Promise<Room | null> {
-        const roomFind = await this.roomRepository.findOneBy({id})
+        const roomFind = await this.roomRepository.findOne({
+            where: {id},
+            relations: ['roomImage', 'projectionType']
+        })
 
         if (roomFind === null)
             return null;
@@ -61,6 +68,11 @@ export class SqlRoomRepository implements IRoomRepositoryPort{
 
         if (room.roomImage != null)
             roomFind.roomImage = room.roomImage;
+
+        if (room.projectionType != null) {
+            roomFind.projectionType = room.projectionType;
+        }
+
 
         return await this.roomRepository.save(roomFind);
     }

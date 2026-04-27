@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsDateString, IsInt, IsOptional, IsString, MaxLength, Min } from "class-validator";
 import { ScreeningDetailDto } from "../../screening/dto/screening.dto";
+import {Type} from "class-transformer";
 
 export class MovieDetailDto {
 
@@ -15,6 +16,9 @@ export class MovieDetailDto {
 
     @ApiProperty({ description: "Movie duration in minutes", example: 169 })
     durationMinutes: number;
+
+    @ApiProperty({ description: "Movie poster URL", nullable: true })
+    posterUrl: string | null;
 
     @ApiProperty({ description: "Movie release date", example: "2014-11-05" })
     releaseDate: Date;
@@ -59,6 +63,7 @@ export class CreateAndUpdateMovieDto {
     synopsis: string;
 
     @ApiProperty({ description: "Movie duration in minutes", example: 169 })
+    @Type(() => Number)
     @IsInt()
     @Min(1)
     durationMinutes: number;
@@ -66,6 +71,10 @@ export class CreateAndUpdateMovieDto {
     @ApiProperty({ description: "Movie release date (ISO 8601)", example: "2014-11-05" })
     @IsDateString()
     releaseDate: string;
+
+    @ApiProperty({ type: 'string', format: 'binary', required: false, description: "Movie poster image" })
+    @IsOptional()
+    poster?: any;
 }
 
 export class MoviePlanningQueryDto {

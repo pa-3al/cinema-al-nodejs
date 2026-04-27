@@ -10,12 +10,12 @@ import {
     Param,
     Patch,
     Post,
-    Query,
-    UseGuards
+    Query, UploadedFile,
+    UseGuards, UseInterceptors
 } from "@nestjs/common";
 import {
     ApiBearerAuth,
-    ApiBody,
+    ApiBody, ApiConsumes,
     ApiCreatedResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -30,9 +30,12 @@ import { AllMovieDto, CreateAndUpdateMovieDto, MovieDetailDto, MoviePlanningDto,
 import type { IMovieServicePort } from "src/core/domain/cinema/movie/port/movie-service.port";
 import { IdNumberParamDto, PaginationQueryDto } from "src/core/domain/global/dto/global.dto";
 import { MOVIE_SERVICE } from "src/core/domain/global/token";
+import {FileInterceptor} from "@nestjs/platform-express";
 
 @ApiTags("Movies")
 @Controller("movies")
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class MovieController {
 
     constructor(
@@ -41,14 +44,17 @@ export class MovieController {
     ) {}
 
     @Post()
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("employee", "super_admin")
-    @ApiBearerAuth()
+    @UseInterceptors(FileInterceptor('poster'))
+    @ApiConsumes('multipart/form-data')
     @ApiOperation({ summary: "Create a movie (employee or super_admin only)" })
     @ApiCreatedResponse({ type: MovieDetailDto })
     @ApiBody({ type: CreateAndUpdateMovieDto })
-    async create(@Body() body: CreateAndUpdateMovieDto) {
-        return await this.movieService.create(body);
+    async create(
+        @Body() body: CreateAndUpdateMovieDto,
+        @UploadedFile() file?: { originalname: string; buffer: Buffer }
+    ) {
+        return await this.movieService.create(body, file);
     }
 
     @Get()
@@ -92,9 +98,7 @@ export class MovieController {
     }
 
     @Patch(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("employee", "super_admin")
-    @ApiBearerAuth()
     @ApiOperation({ summary: "Update a movie (employee or super_admin only)" })
     @ApiParam({ name: "id", type: Number, example: 1 })
     @ApiOkResponse({ type: MovieDetailDto })
@@ -102,9 +106,10 @@ export class MovieController {
     @ApiBody({ type: CreateAndUpdateMovieDto })
     async update(
         @Param() idParam: IdNumberParamDto,
-        @Body() body: CreateAndUpdateMovieDto
+        @Body() body: CreateAndUpdateMovieDto,
+        @UploadedFile() file?: { originalname: string; buffer: Buffer }
     ) {
-        const movie = await this.movieService.update(idParam, body);
+        const movie = await this.movieService.update(idParam, body, file);
 
         if (!movie) {
             throw new NotFoundException(`Movie with id ${idParam.id} not found`);
@@ -114,9 +119,7 @@ export class MovieController {
     }
 
     @Delete(":id")
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("employee", "super_admin")
-    @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Delete a movie (employee or super_admin only)" })
     @ApiParam({ name: "id", type: Number, example: 1 })

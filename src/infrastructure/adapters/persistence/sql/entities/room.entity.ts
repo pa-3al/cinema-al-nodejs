@@ -1,6 +1,10 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn,
+    ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn
+} from "typeorm";
 import { RoomImage } from "./room-image.entity";
 import { Screening } from "./screening.entity";
+import {ProjectionType} from "./projection-type.entity";
 
 @Entity("room")
 export class Room {
@@ -23,6 +27,9 @@ export class Room {
     @CreateDateColumn()
     createdAt : Date;
 
+    @Column({ default: false })
+    isHandicapAccessible : boolean;
+
     @UpdateDateColumn()
     updatedAt : Date;
 
@@ -34,4 +41,8 @@ export class Room {
 
     @OneToMany(() => Screening, (screening) => screening.room)
     screenings: Screening[];
+
+    @ManyToOne(() => ProjectionType, (projectionType) => projectionType.rooms)
+    @JoinColumn({ name: "projection_type_id" })
+    projectionType: ProjectionType;
 }

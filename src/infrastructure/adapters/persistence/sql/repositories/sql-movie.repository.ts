@@ -62,6 +62,10 @@ export class SqlMovieRepository implements IMovieRepositoryPort {
             movieFound.releaseDate = movie.releaseDate;
         }
 
+        if (movie.posterUrl !== undefined) {
+            movieFound.posterUrl = movie.posterUrl;
+        }
+
         return await this.movieRepository.save(movieFound);
     }
 

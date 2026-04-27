@@ -40,6 +40,12 @@ export class Movie {
     })
     releaseDate: Date;
 
+    @Column({
+        type: "varchar",
+        nullable: true
+    })
+    posterUrl: string | null;
+
     @CreateDateColumn()
     createdAt: Date;
 

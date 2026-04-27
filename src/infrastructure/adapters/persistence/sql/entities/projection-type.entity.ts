@@ -1,5 +1,6 @@
 import {Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 import { TicketPrice } from "./ticket-price.entity";
+import {Room} from "./room.entity";
 
 @Entity("projection-type")
 export class ProjectionType {
@@ -26,4 +27,7 @@ export class ProjectionType {
 
     @OneToMany(() => TicketPrice, (ticketPrice) => ticketPrice.projectionType)
     ticketPrices: TicketPrice[];
+
+    @OneToMany(() => Room, (room) => room.projectionType)
+    rooms: Room[];
 }

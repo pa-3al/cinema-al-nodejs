@@ -1,18 +1,22 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { AllRoomDto, CreateAndUpdateRoomDto, RoomDetailDto } from "src/core/domain/cinema/room/dto/room.dto";
-import type { IRoomRepositoryPort } from "src/core/domain/cinema/room/port/room-repository.port";
-import { IRoomServicePort } from "src/core/domain/cinema/room/port/room-service.port";
-import { IdNumberParamDto, PaginationQueryDto } from "src/core/domain/global/dto/global.dto";
-import { ROOM_REPOSITORY } from "src/core/domain/global/token";
-import { Room } from "src/infrastructure/adapters/persistence/sql/entities/room.entity";
+import {Inject, Injectable, NotFoundException} from "@nestjs/common";
+import * as projectionTypeRepositoryPort
+    from "../../../domain/cinema/projection-type/port/projection-type-repository.port";
+import {IRoomServicePort} from "../../../domain/cinema/room/port/room-service.port";
+import * as roomRepositoryPort from "../../../domain/cinema/room/port/room-repository.port";
+import {PROJECTION_TYPE_REPOSITORY, ROOM_REPOSITORY} from "../../../domain/global/token";
+import {Room} from "../../../../infrastructure/adapters/persistence/sql/entities/room.entity";
+import {AllRoomDto, CreateAndUpdateRoomDto, RoomDetailDto} from "../../../domain/cinema/room/dto/room.dto";
+import {IdNumberParamDto, PaginationQueryDto} from "../../../domain/global/dto/global.dto";
 
 
 @Injectable()
-export class RoomService implements IRoomServicePort{
+export class RoomService implements IRoomServicePort {
 
-    constructor (
+    constructor(
         @Inject(ROOM_REPOSITORY)
-        private readonly roomRepository : IRoomRepositoryPort
+        private readonly roomRepository: roomRepositoryPort.IRoomRepositoryPort,
+        @Inject(PROJECTION_TYPE_REPOSITORY)
+        private readonly projectionTypeRepository: projectionTypeRepositoryPort.IProjectionTypeRepository
     ) {}
 
     private mapRoomToDetailDto(room: Room): RoomDetailDto {
@@ -23,6 +27,7 @@ export class RoomService implements IRoomServicePort{
             capacity: room.capacity,
             isMaintenance: room.isMaintenance,
             roomImageIds: room.roomImage?.map(img => img.id) || [],
+            projectionTypeId: room.projectionType?.id,
             createdAt: room.createdAt,
             updatedAt: room.updatedAt,
             deletedAt: room.deletedAt
@@ -30,8 +35,18 @@ export class RoomService implements IRoomServicePort{
     }
 
     async create(room : CreateAndUpdateRoomDto) : Promise<RoomDetailDto> {
-        const roomCreated = this.roomRepository.create(room);
-        return await this.roomRepository.save(roomCreated);
+        const projectionType = await this.projectionTypeRepository.findById(room.projectionTypeId);
+
+        if (!projectionType) {
+            throw new NotFoundException("Projection Type not exists")
+        }
+
+        const roomCreated = this.roomRepository.create({
+            ...room,
+            projectionType: projectionType
+        });
+        const savedRoom =  await this.roomRepository.save(roomCreated);
+        return this.mapRoomToDetailDto(savedRoom);
     }
 
     async findAll(paginationQueryDto : PaginationQueryDto) : Promise<AllRoomDto>{
@@ -43,7 +58,12 @@ export class RoomService implements IRoomServicePort{
         if (paginationQueryDto.size != null)
             size = paginationQueryDto.size;
 
-        return await this.roomRepository.findAll({page, size});
+        const rooms = await this.roomRepository.findAll({page, size});
+
+        return {
+            ...rooms,
+            data: rooms.data.map(room => this.mapRoomToDetailDto(room))
+        }
     }
 
     async findOne(idParam: IdNumberParamDto) : Promise<RoomDetailDto | null> {
@@ -54,10 +74,28 @@ export class RoomService implements IRoomServicePort{
     }
 
     async update(idParam : IdNumberParamDto, room : CreateAndUpdateRoomDto) : Promise<RoomDetailDto | null> {
-        return await this.roomRepository.update(idParam.id, room);
+        const projectionType = await this.projectionTypeRepository.findById(room.projectionTypeId);
+
+        if (!projectionType) {
+            throw new NotFoundException("Projection Type not exists")
+        }
+
+        const updatedRoom= await this.roomRepository.update(idParam.id, {
+            ...room,
+            projectionType: projectionType
+        });
+        if (!updatedRoom) {
+            return null;
+        }
+        return this.mapRoomToDetailDto(updatedRoom)
     }
 
     async delete(idParam : IdNumberParamDto) : Promise<RoomDetailDto | null> {
-        return await this.roomRepository.delete(idParam.id);
+
+        const deletedRoom = await this.roomRepository.delete(idParam.id);
+        if (!deletedRoom) {
+            return null;
+        }
+        return this.mapRoomToDetailDto(deletedRoom)
     }
 }

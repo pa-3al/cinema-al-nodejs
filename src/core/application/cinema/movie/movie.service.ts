@@ -1,31 +1,45 @@
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
-import { IMovieServicePort } from "src/core/domain/cinema/movie/port/movie-service.port";
-import { MOVIE_REPOSITORY, SCREENING_REPOSITORY } from "src/core/domain/global/token";
-import type { IMovieRepositoryPort } from "src/core/domain/cinema/movie/port/movie-repository.port";
-import { IdNumberParamDto, PaginationQueryDto } from "src/core/domain/global/dto/global.dto";
-import { AllMovieDto, CreateAndUpdateMovieDto, MovieDetailDto, MoviePlanningDto, MoviePlanningQueryDto } from "src/core/domain/cinema/movie/dto/movie.dto";
-import type { IScreeningRepositoryPort } from "src/core/domain/cinema/screening/port/screening-repository.port";
-import { ScreeningDetailDto } from "src/core/domain/cinema/screening/dto/screening.dto";
-import { Movie } from "src/infrastructure/adapters/persistence/sql/entities/movie.entity";
-import { Screening } from "src/infrastructure/adapters/persistence/sql/entities/screening.entity";
+import {IMovieServicePort} from "../../../domain/cinema/movie/port/movie-service.port";
+import {MOVIE_REPOSITORY, SCREENING_REPOSITORY, STORAGE_PORT} from "../../../domain/global/token";
+import * as movieRepositoryPort from "../../../domain/cinema/movie/port/movie-repository.port";
+import * as screeningRepositoryPort from "../../../domain/cinema/screening/port/screening-repository.port";
+import * as storageServicePort from "../../../domain/global/storage/port/storage-service.port";
+import {Movie} from "../../../../infrastructure/adapters/persistence/sql/entities/movie.entity";
+import {
+    AllMovieDto,
+    CreateAndUpdateMovieDto,
+    MovieDetailDto, MoviePlanningDto,
+    MoviePlanningQueryDto
+} from "../../../domain/cinema/movie/dto/movie.dto";
+import {Screening} from "../../../../infrastructure/adapters/persistence/sql/entities/screening.entity";
+import {ScreeningDetailDto} from "../../../domain/cinema/screening/dto/screening.dto";
+import {IdNumberParamDto, PaginationQueryDto} from "../../../domain/global/dto/global.dto";
 
 @Injectable()
 export class MovieService implements IMovieServicePort {
 
     constructor(
         @Inject(MOVIE_REPOSITORY)
-        private readonly movieRepository: IMovieRepositoryPort,
+        private readonly movieRepository: movieRepositoryPort.IMovieRepositoryPort,
         @Inject(SCREENING_REPOSITORY)
-        private readonly screeningRepository: IScreeningRepositoryPort
+        private readonly screeningRepository: screeningRepositoryPort.IScreeningRepositoryPort,
+        @Inject(STORAGE_PORT)
+        private readonly storageService: storageServicePort.IStorageService
     ) {}
 
-    private mapMovieToDetailDto(movie: Movie): MovieDetailDto {
+    private async mapMovieToDetailDto(movie: Movie): Promise<MovieDetailDto> {
+        let finalPosterUrl = movie.posterUrl;
+        if (finalPosterUrl) {
+            finalPosterUrl = await this.storageService.getFileUrl(finalPosterUrl) || finalPosterUrl;
+        }
+
         return {
             id: movie.id,
             title: movie.title,
             synopsis: movie.synopsis,
             durationMinutes: movie.durationMinutes,
             releaseDate: movie.releaseDate,
+            posterUrl: finalPosterUrl,
             createdAt: movie.createdAt,
             updatedAt: movie.updatedAt,
             deletedAt: movie.deletedAt
@@ -47,16 +61,25 @@ export class MovieService implements IMovieServicePort {
         };
     }
 
-    async create(movie: CreateAndUpdateMovieDto): Promise<MovieDetailDto> {
+    async create(movie: CreateAndUpdateMovieDto, file?: { originalname: string; buffer: Buffer }): Promise<MovieDetailDto> {
+        let posterUrl: string | null = null;
+
+        if (file) {
+            const fileName = `movies/posters/${Date.now()}-${file.originalname}`;
+            await this.storageService.uploadFile(fileName, file.buffer);
+            posterUrl = fileName;
+        }
+
         const movieCreated = this.movieRepository.create({
             title: movie.title,
             synopsis: movie.synopsis,
             durationMinutes: movie.durationMinutes,
-            releaseDate: new Date(movie.releaseDate)
+            releaseDate: new Date(movie.releaseDate),
+            posterUrl: posterUrl
         });
 
         const savedMovie = await this.movieRepository.save(movieCreated);
-        return this.mapMovieToDetailDto(savedMovie);
+        return await this.mapMovieToDetailDto(savedMovie);
     }
 
     async findAll(query: PaginationQueryDto): Promise<AllMovieDto> {
@@ -64,9 +87,10 @@ export class MovieService implements IMovieServicePort {
         const size = query.size ?? 10;
 
         const movies = await this.movieRepository.findAll({ page, size });
+        const data = await Promise.all(movies.data.map(movie => this.mapMovieToDetailDto(movie)));
 
         return {
-            data: movies.data.map(movie => this.mapMovieToDetailDto(movie)),
+            data: data,
             page: movies.page,
             size: movies.size,
             totalCount: movies.totalCount,
@@ -80,21 +104,29 @@ export class MovieService implements IMovieServicePort {
         if (!movie) {
             return null;
         }
-        return this.mapMovieToDetailDto(movie);
+        return await this.mapMovieToDetailDto(movie);
     }
 
-    async update(idParam: IdNumberParamDto, movie: CreateAndUpdateMovieDto): Promise<MovieDetailDto | null> {
-        const updatedMovie = await this.movieRepository.update(idParam.id, {
+    async update(idParam: IdNumberParamDto, movie: CreateAndUpdateMovieDto, file?: { originalname: string; buffer: Buffer }): Promise<MovieDetailDto | null> {
+        const updateData: Partial<Movie> = {
             title: movie.title,
             synopsis: movie.synopsis,
             durationMinutes: movie.durationMinutes,
             releaseDate: new Date(movie.releaseDate)
-        });
+        };
+
+        if (file) {
+            const fileName = `movies/posters/${Date.now()}-${file.originalname}`;
+            await this.storageService.uploadFile(fileName, file.buffer);
+            updateData.posterUrl = fileName;
+        }
+
+        const updatedMovie = await this.movieRepository.update(idParam.id, updateData);
 
         if (!updatedMovie) {
             return null;
         }
-        return this.mapMovieToDetailDto(updatedMovie);
+        return await this.mapMovieToDetailDto(updatedMovie);
     }
 
     async delete(idParam: IdNumberParamDto): Promise<MovieDetailDto | null> {
@@ -103,7 +135,7 @@ export class MovieService implements IMovieServicePort {
         if (!deletedMovie) {
             return null;
         }
-        return this.mapMovieToDetailDto(deletedMovie);
+        return await this.mapMovieToDetailDto(deletedMovie);
     }
 
     async getPlanningForNextMonth(idParam: IdNumberParamDto, query: MoviePlanningQueryDto): Promise<MoviePlanningDto | null> {
@@ -139,7 +171,7 @@ export class MovieService implements IMovieServicePort {
         );
 
         return {
-            movie: this.mapMovieToDetailDto(movie),
+            movie: await this.mapMovieToDetailDto(movie),
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
             screenings: screenings.map(screening => this.mapScreeningToDetailDto(screening))

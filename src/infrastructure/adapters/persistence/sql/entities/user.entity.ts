@@ -11,6 +11,7 @@ import {
 import {RefreshToken} from "./refresh-tokens.entity";
 import {Employee} from "./employee.entity";
 import { Ticket } from "./ticket.entity";
+import { Transaction } from "./transaction.entity";
 
 @Entity("users")
 export class User{
@@ -77,4 +78,7 @@ export class User{
 
     @OneToOne(() => Employee, (employee) => employee.user)
     employee: Employee;
+
+    @OneToMany(() => Transaction, (transaction) => transaction.user)
+    transactions: Transaction[];
 }

@@ -2,12 +2,13 @@ import {
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity,
+    Entity, JoinColumn, ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
 import { Screening } from "./screening.entity";
+import {MovieGenre} from "./movie-genre.entity";
 
 @Entity("movie")
 export class Movie {
@@ -57,4 +58,8 @@ export class Movie {
 
     @OneToMany(() => Screening, (screening) => screening.movie)
     screenings: Screening[];
+
+    @ManyToOne(() => MovieGenre, { nullable: true })
+    @JoinColumn({ name: "genre_id" })
+    genre: MovieGenre;
 }

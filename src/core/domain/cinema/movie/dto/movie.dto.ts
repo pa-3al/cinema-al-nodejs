@@ -20,6 +20,9 @@ export class MovieDetailDto {
     @ApiProperty({ description: "Movie poster URL", nullable: true })
     posterUrl: string | null;
 
+    @ApiProperty({description: "Movie Genre", example: "Comédie"})
+    movieGenre: string;
+
     @ApiProperty({ description: "Movie release date", example: "2014-11-05" })
     releaseDate: Date;
 
@@ -71,6 +74,10 @@ export class CreateAndUpdateMovieDto {
     @ApiProperty({ description: "Movie release date (ISO 8601)", example: "2014-11-05" })
     @IsDateString()
     releaseDate: string;
+
+    @ApiProperty({ description: "ID of the movie genre", example: 1 })
+    @IsInt()
+    genreId: number;
 
     @ApiProperty({ type: 'string', format: 'binary', required: false, description: "Movie poster image" })
     @IsOptional()

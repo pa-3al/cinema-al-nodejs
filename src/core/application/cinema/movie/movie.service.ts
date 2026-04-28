@@ -1,6 +1,11 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import {BadRequestException, Inject, Injectable, NotFoundException} from "@nestjs/common";
 import {IMovieServicePort} from "../../../domain/cinema/movie/port/movie-service.port";
-import {MOVIE_REPOSITORY, SCREENING_REPOSITORY, STORAGE_PORT} from "../../../domain/global/token";
+import {
+    MOVIE_GENRE_REPOSITORY,
+    MOVIE_REPOSITORY,
+    SCREENING_REPOSITORY,
+    STORAGE_PORT
+} from "../../../domain/global/token";
 import * as movieRepositoryPort from "../../../domain/cinema/movie/port/movie-repository.port";
 import * as screeningRepositoryPort from "../../../domain/cinema/screening/port/screening-repository.port";
 import * as storageServicePort from "../../../domain/global/storage/port/storage-service.port";
@@ -14,6 +19,7 @@ import {
 import {Screening} from "../../../../infrastructure/adapters/persistence/sql/entities/screening.entity";
 import {ScreeningDetailDto} from "../../../domain/cinema/screening/dto/screening.dto";
 import {IdNumberParamDto, PaginationQueryDto} from "../../../domain/global/dto/global.dto";
+import * as movieGenreRepositoryPort from "../../../domain/cinema/movie-genre/port/movie-genre-repository.port";
 
 @Injectable()
 export class MovieService implements IMovieServicePort {
@@ -23,6 +29,8 @@ export class MovieService implements IMovieServicePort {
         private readonly movieRepository: movieRepositoryPort.IMovieRepositoryPort,
         @Inject(SCREENING_REPOSITORY)
         private readonly screeningRepository: screeningRepositoryPort.IScreeningRepositoryPort,
+        @Inject(MOVIE_GENRE_REPOSITORY)
+        private readonly genreRepository: movieGenreRepositoryPort.IMovieGenreRepository,
         @Inject(STORAGE_PORT)
         private readonly storageService: storageServicePort.IStorageService
     ) {}
@@ -40,6 +48,7 @@ export class MovieService implements IMovieServicePort {
             durationMinutes: movie.durationMinutes,
             releaseDate: movie.releaseDate,
             posterUrl: finalPosterUrl,
+            movieGenre: movie.genre.name,
             createdAt: movie.createdAt,
             updatedAt: movie.updatedAt,
             deletedAt: movie.deletedAt
@@ -70,11 +79,18 @@ export class MovieService implements IMovieServicePort {
             posterUrl = fileName;
         }
 
+        const genre = await this.genreRepository.findById(movie.genreId);
+
+        if (genre === null) {
+            throw new NotFoundException("Genre not found");
+        }
+
         const movieCreated = this.movieRepository.create({
             title: movie.title,
             synopsis: movie.synopsis,
             durationMinutes: movie.durationMinutes,
             releaseDate: new Date(movie.releaseDate),
+            genre: genre,
             posterUrl: posterUrl
         });
 

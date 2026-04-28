@@ -13,6 +13,6 @@ import {ProjectionTypeController} from "./projection-type.controller";
         {provide: PROJECTION_TYPE_SERVICE, useClass: ProjectionTypeService},
         {provide: PROJECTION_TYPE_REPOSITORY, useClass: SqlProjectionTypeRepository},
     ],
-    exports: [PROJECTION_TYPE_SERVICE]
+    exports: [PROJECTION_TYPE_SERVICE, PROJECTION_TYPE_REPOSITORY]
 })
 export class ProjectionTypeModule {}

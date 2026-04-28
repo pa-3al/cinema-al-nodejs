@@ -1,5 +1,5 @@
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
-import {ROOM_IMAGE_REPOSITORY, STORAGE_PORT} from "../../../domain/global/token";
+import {Inject, Injectable, BadRequestException, NotFoundException} from '@nestjs/common';
+import {ROOM_IMAGE_REPOSITORY, ROOM_REPOSITORY, STORAGE_PORT} from "../../../domain/global/token";
 import {IRoomImageServicePort} from "../../../domain/cinema/room-image/port/room-image-service.port";
 import * as roomImageRepositoryPort from "../../../domain/cinema/room-image/port/room-image-repository.port";
 import * as storageServicePort from "../../../domain/global/storage/port/storage-service.port";
@@ -9,6 +9,7 @@ import {
     RoomImageDetailsDto, UploadRoomImageDto
 } from "../../../domain/cinema/room-image/dto/room-image.dto";
 import {IdNumberParamDto, PaginationQueryDto} from "../../../domain/global/dto/global.dto";
+import * as roomRepositoryPort from "../../../domain/cinema/room/port/room-repository.port";
 
 @Injectable()
 export class RoomImageService implements IRoomImageServicePort {
@@ -16,11 +17,20 @@ export class RoomImageService implements IRoomImageServicePort {
     constructor(
         @Inject(ROOM_IMAGE_REPOSITORY)
         private readonly roomImageRepository: roomImageRepositoryPort.IRoomImageRepositoryPort,
+        @Inject(ROOM_REPOSITORY)
+        private readonly roomRepository: roomRepositoryPort.IRoomRepositoryPort,
         @Inject(STORAGE_PORT)
         private readonly storageService: storageServicePort.IStorageService
     ){}
 
     async create(roomImage: CreateAndUpdateRoomImageDto): Promise<RoomImageDetailsDto> {
+
+        const room = await this.roomRepository.findById(roomImage.roomId)
+
+        if (room === null) {
+            throw new NotFoundException("Room not found");
+        }
+
         const roomImageCreated = this.roomImageRepository.create(roomImage);
 
         return await this.roomImageRepository.save(roomImageCreated);
@@ -57,6 +67,13 @@ export class RoomImageService implements IRoomImageServicePort {
     }
 
     async createWithUpload(body: UploadRoomImageDto, file: { originalname: string; buffer: Buffer }): Promise<RoomImageDetailsDto>{
+
+        const room = await this.roomRepository.findById(body.roomId)
+
+        if (room === null) {
+            throw new NotFoundException("Room not found");
+        }
+
         if (!file) {
             throw new BadRequestException('File is required');
         }

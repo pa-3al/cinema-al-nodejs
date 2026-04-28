@@ -3,10 +3,11 @@ import * as projectionTypeRepositoryPort
     from "../../../domain/cinema/projection-type/port/projection-type-repository.port";
 import {IRoomServicePort} from "../../../domain/cinema/room/port/room-service.port";
 import * as roomRepositoryPort from "../../../domain/cinema/room/port/room-repository.port";
-import {PROJECTION_TYPE_REPOSITORY, ROOM_REPOSITORY} from "../../../domain/global/token";
+import {PROJECTION_TYPE_REPOSITORY, ROOM_REPOSITORY, STORAGE_PORT} from "../../../domain/global/token";
 import {Room} from "../../../../infrastructure/adapters/persistence/sql/entities/room.entity";
 import {AllRoomDto, CreateAndUpdateRoomDto, RoomDetailDto} from "../../../domain/cinema/room/dto/room.dto";
 import {IdNumberParamDto, PaginationQueryDto} from "../../../domain/global/dto/global.dto";
+import * as storageServicePort from "../../../domain/global/storage/port/storage-service.port";
 
 
 @Injectable()
@@ -16,17 +17,32 @@ export class RoomService implements IRoomServicePort {
         @Inject(ROOM_REPOSITORY)
         private readonly roomRepository: roomRepositoryPort.IRoomRepositoryPort,
         @Inject(PROJECTION_TYPE_REPOSITORY)
-        private readonly projectionTypeRepository: projectionTypeRepositoryPort.IProjectionTypeRepository
+        private readonly projectionTypeRepository: projectionTypeRepositoryPort.IProjectionTypeRepository,
+        @Inject(STORAGE_PORT)
+        private readonly storageService: storageServicePort.IStorageService
     ) {}
 
-    private mapRoomToDetailDto(room: Room): RoomDetailDto {
+    private async mapRoomToDetailDto(room: Room): Promise<RoomDetailDto> {
+
+        const roomImages = room.roomImage ? await Promise.all(
+            room.roomImage.map(async (img) => ({
+                id: img.id,
+                imageUrl: await this.storageService.getFileUrl(img.imageUrl) || img.imageUrl,
+                displayOrder: img.displayOrder,
+                roomId: img.roomId,
+                createdAt: img.createdAt,
+                updatedAt: img.updatedAt,
+                deletedAt: img.deletedAt
+            }))
+        ) : [];
+
         return {
             id: room.id,
             name: room.name,
             description: room.description,
             capacity: room.capacity,
             isMaintenance: room.isMaintenance,
-            roomImageIds: room.roomImage?.map(img => img.id) || [],
+            roomImages: roomImages,
             projectionTypeId: room.projectionType?.id,
             createdAt: room.createdAt,
             updatedAt: room.updatedAt,
@@ -60,9 +76,13 @@ export class RoomService implements IRoomServicePort {
 
         const rooms = await this.roomRepository.findAll({page, size});
 
+        const mappedData = await Promise.all(
+            rooms.data.map(room => this.mapRoomToDetailDto(room))
+        );
+
         return {
             ...rooms,
-            data: rooms.data.map(room => this.mapRoomToDetailDto(room))
+            data: mappedData
         }
     }
 
@@ -70,7 +90,7 @@ export class RoomService implements IRoomServicePort {
         const room = await this.roomRepository.findById(idParam.id);
         if (room === null)
             return null;
-        return this.mapRoomToDetailDto(room);
+        return await this.mapRoomToDetailDto(room);
     }
 
     async update(idParam : IdNumberParamDto, room : CreateAndUpdateRoomDto) : Promise<RoomDetailDto | null> {

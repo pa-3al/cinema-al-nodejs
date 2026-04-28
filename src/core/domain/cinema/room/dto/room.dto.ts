@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {IsInt, Max, Min} from "class-validator";
 import {Type} from "class-transformer";
+import {RoomImageDetailsDto} from "../../room-image/dto/room-image.dto";
 
 export class RoomDetailDto {
 
@@ -20,7 +21,7 @@ export class RoomDetailDto {
     isMaintenance : boolean;
 
     @ApiProperty({ description : "List of image IDs associated with this room", type: [Number], example: [1, 2, 3], required: false })
-    roomImageIds? : number[];
+    roomImages? : RoomImageDetailsDto[];
 
     @ApiProperty({ description: "Projection type identifier", example: 1 })
     projectionTypeId: number;

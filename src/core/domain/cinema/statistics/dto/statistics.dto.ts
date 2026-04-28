@@ -1,38 +1,71 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 export class ScreeningStatsDto {
-    @ApiProperty()
+    @ApiProperty({
+        example: 1,
+        description: "Unique identifier of the screening"
+    })
     screeningId: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: "Absolute Movie",
+        description: "Title of the movie shown during the screening"
+    })
     movieTitle: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: "Absolute Room",
+        description: "Name of the room where the screening takes place"
+    })
     roomName: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 250,
+        description: "Total capacity of the room (maximum number of available seats)"
+    })
     capacity: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 150,
+        description: "Number of spectators who attended the screening"
+    })
     spectators: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 60.0,
+        description: "Occupancy rate of the screening as a percentage (spectators / capacity * 100)"
+    })
     occupancyRate: number;
 }
 
 export class AttendanceStatsDto {
-    @ApiProperty()
+    @ApiProperty({
+        example: "2026-04-01T00:00:00Z",
+        description: "Start date of the analyzed period"
+    })
     startDate: Date;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: "2026-04-30T23:59:59Z",
+        description: "End date of the analyzed period"
+    })
     endDate: Date;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 1500,
+        description: "Total number of spectators over the period"
+    })
     totalSpectators: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 75.5,
+        description: "Average occupancy rate over the period (in percentage)"
+    })
     averageOccupancyRate: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 20,
+        description: "Total number of screenings over the period"
+    })
     totalScreenings: number;
 }

@@ -5,7 +5,7 @@ export class RoomImageDetailsDto {
     @ApiProperty({ description: "Unique identifier of the room image", example: 1 })
     id : number;
 
-    @ApiProperty({ description: "URL of the room image", example: "https://example.com/room-image.jpg" })
+    @ApiProperty({ description: "URL of the room image", example: "https://absolute-cloud.com/room-image.jpg" })
     imageUrl : string;
 
     @ApiProperty({ description: "Display order of the room image", example: 1 })
@@ -42,7 +42,7 @@ export class AllRoomImageDto {
 }
 
 export class CreateAndUpdateRoomImageDto {
-    @ApiProperty({ description: "URL of the room image", example: "https://example.com/room-image.jpg" })
+    @ApiProperty({ description: "URL of the room image", example: "https://absolute-cloud.com/room-image.jpg" })
     imageUrl : string;
 
     @ApiProperty({ description: "Display order of the room image", example: 1 })

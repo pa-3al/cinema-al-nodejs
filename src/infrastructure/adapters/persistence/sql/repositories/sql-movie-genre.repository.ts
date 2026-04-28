@@ -29,7 +29,6 @@ export class SqlMovieGenreRepository implements IMovieGenreRepository {
     }
 
     async findById(id: number) : Promise<MovieGenre | null> {
-        console.log(id)
         return await this.movieGenreRepository.findOneBy({
             id:id
         })

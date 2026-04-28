@@ -1,16 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {IsInt, Max, Min} from "class-validator";
 import {Type} from "class-transformer";
+import {RoomImageDetailsDto} from "../../room-image/dto/room-image.dto";
 
 export class RoomDetailDto {
 
     @ApiProperty({ description : "Unique identifier of the room", example: 1 })
     id : number;
 
-    @ApiProperty({ description : "Name of the room", example: "Room 1" })
+    @ApiProperty({ description : "Name of the room", example: "Absolute room" })
     name : string;
 
-    @ApiProperty({ description : "Description of the room", example: "A cozy room with comfortable seating" })
+    @ApiProperty({ description : "Description of the room", example: "An absolute room" })
     description : string;
 
     @ApiProperty({ description : "Capacity of the room", example: 50 })
@@ -20,7 +21,7 @@ export class RoomDetailDto {
     isMaintenance : boolean;
 
     @ApiProperty({ description : "List of image IDs associated with this room", type: [Number], example: [1, 2, 3], required: false })
-    roomImageIds? : number[];
+    roomImages? : RoomImageDetailsDto[];
 
     @ApiProperty({ description: "Projection type identifier", example: 1 })
     projectionTypeId: number;
@@ -55,10 +56,10 @@ export class AllRoomDto {
 
 export class CreateAndUpdateRoomDto {
 
-    @ApiProperty({ description : "Name of the room", example: "Room 1" })
+    @ApiProperty({ description : "Name of the room", example: "Absolute room" })
     name : string;
 
-    @ApiProperty({ description : "Description of the room", example: "A cozy room with comfortable seating" })
+    @ApiProperty({ description : "Description of the room", example: "An absolute room" })
     description : string;
 
     @ApiProperty({ description : "Capacity of the room", example: 50 })

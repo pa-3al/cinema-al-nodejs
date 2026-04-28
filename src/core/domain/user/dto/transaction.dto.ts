@@ -2,39 +2,69 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNumber, Min } from "class-validator";
 
 export class MoneyOperationDto {
-    @ApiProperty({ description: "Montant de l'opération", example: 50 })
+    @ApiProperty({
+        example: 50.0,
+        description: "Amount of money involved in the operation (must be greater than 0)"
+    })
     @IsNumber()
     @Min(0.01)
     amount: number;
 }
 
 export class TransactionDetailDto {
-    @ApiProperty()
+    @ApiProperty({
+        example: "550e8400-e29b-41d4-a716-446655440000",
+        description: "Unique identifier of the transaction"
+    })
     id: string;
 
-    @ApiProperty({ description: "Type d'opération", example: "deposit" })
+    @ApiProperty({
+        example: "deposit",
+        description: "Type of transaction (e.g., deposit, withdrawal)"
+    })
     type: string;
 
-    @ApiProperty({ description: "Montant", example: 50 })
+    @ApiProperty({
+        example: 50.0,
+        description: "Amount of money involved in the transaction"
+    })
     amount: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: "2026-04-28T12:00:00Z",
+        description: "Date and time when the transaction was created"
+    })
     createdAt: Date;
 }
 
 export class AllTransactionsDto {
-    @ApiProperty({ type: [TransactionDetailDto] })
+    @ApiProperty({
+        type: [TransactionDetailDto],
+        description: "List of transactions for the current page"
+    })
     data: TransactionDetailDto[];
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 1,
+        description: "Current page number"
+    })
     page: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 10,
+        description: "Number of items per page"
+    })
     size: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 100,
+        description: "Total number of transactions"
+    })
     totalCount: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        example: 10,
+        description: "Total number of pages available"
+    })
     totalPage: number;
 }

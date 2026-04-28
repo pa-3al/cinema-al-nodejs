@@ -14,10 +14,10 @@ export class ScreeningDetailDto {
     @ApiProperty({ description: "Related room identifier", example: 2 })
     roomId: number;
 
-    @ApiProperty({ description: "Movie title", example: "Interstellar" })
+    @ApiProperty({ description: "Movie title", example: "Absolute Movie" })
     movieTitle: string;
 
-    @ApiProperty({ description: "Room name", example: "Room 2" })
+    @ApiProperty({ description: "Room name", example: "Absolute Room" })
     roomName: string;
 
     @ApiProperty({ description: "Screening start time", example: "2026-04-03T19:30:00.000Z" })

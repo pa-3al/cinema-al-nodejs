@@ -8,10 +8,10 @@ export class MovieDetailDto {
     @ApiProperty({ description: "Unique identifier of the movie", example: 1 })
     id: number;
 
-    @ApiProperty({ description: "Movie title", example: "Interstellar" })
+    @ApiProperty({ description: "Movie title", example: "Absolute Movie" })
     title: string;
 
-    @ApiProperty({ description: "Movie synopsis", example: "A team travels through a wormhole in space..." })
+    @ApiProperty({ description: "Movie synopsis", example: "An absolute movie about absolute adventure" })
     synopsis: string;
 
     @ApiProperty({ description: "Movie duration in minutes", example: 169 })
@@ -19,6 +19,9 @@ export class MovieDetailDto {
 
     @ApiProperty({ description: "Movie poster URL", nullable: true })
     posterUrl: string | null;
+
+    @ApiProperty({description: "Movie Genre", example: "Comédie"})
+    movieGenre: string;
 
     @ApiProperty({ description: "Movie release date", example: "2014-11-05" })
     releaseDate: Date;
@@ -53,12 +56,12 @@ export class AllMovieDto {
 
 export class CreateAndUpdateMovieDto {
 
-    @ApiProperty({ description: "Movie title", example: "Interstellar" })
+    @ApiProperty({ description: "Movie title", example: "Absolute Movie" })
     @IsString()
     @MaxLength(255)
     title: string;
 
-    @ApiProperty({ description: "Movie synopsis", example: "A team travels through a wormhole in space..." })
+    @ApiProperty({ description: "Movie synopsis", example: "An absolute Movie" })
     @IsString()
     synopsis: string;
 
@@ -71,6 +74,10 @@ export class CreateAndUpdateMovieDto {
     @ApiProperty({ description: "Movie release date (ISO 8601)", example: "2014-11-05" })
     @IsDateString()
     releaseDate: string;
+
+    @ApiProperty({ description: "ID of the movie genre", example: 1 })
+    @IsInt()
+    genreId: number;
 
     @ApiProperty({ type: 'string', format: 'binary', required: false, description: "Movie poster image" })
     @IsOptional()

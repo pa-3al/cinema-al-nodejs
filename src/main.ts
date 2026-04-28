@@ -19,13 +19,42 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const config = new DocumentBuilder()
-      .setTitle('API Cinema AL')
-      .setDescription('Description')
+      .setTitle('Absolute Cinema API')
+      .setDescription('Comprehensive API for managing a cinema complex, including movies, screenings, rooms, and employees.')
       .setVersion('1.0')
-      .addTag('test')
+      .setContact('Absolute Cinema Support', 'https://absolute-cinema.com/support', 'support@absolute-cinema.com')
+      .addBearerAuth(
+          {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            name: 'JWT',
+            description: 'Enter JWT access token',
+            in: 'header',
+          },
+          'JWT-auth',
+      )
+      .addTag('Auth')
+      .addTag('Users')
+      .addTag('Employees')
+      .addTag('Movies')
+      .addTag('Screenings')
+      .addTag('Rooms')
+      .addTag('Room Images')
+      .addTag('Movie Genres')
+      .addTag('Projection Types')
+      .addTag('Tickets')
+      .addTag('Ticket Prices')
+      .addTag('Statistics')
+      .addTag('Monitoring')
+      .addServer("http://localhost:3000")
+      .addServer("https://api-absolute-cinema.remythibaut.fr")
       .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory, {
+    swaggerOptions: {
+      persistAuthorization: true
+    },
     jsonDocumentUrl: 'swagger/json'
   });
 

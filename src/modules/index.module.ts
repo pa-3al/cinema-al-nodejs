@@ -10,6 +10,7 @@ import { MovieModule } from './movie/movie.module';
 import { ScreeningModule } from './screening/screening.module';
 import {MonitoringModule} from "./monitoring/monitoring.module";
 import {StatisticsModule} from "./statistics/statistics.module";
+import {TicketModule} from "./ticket/ticket.module";
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import {StatisticsModule} from "./statistics/statistics.module";
         ScreeningModule,
         MonitoringModule,
         StatisticsModule,
+        TicketModule
     ],
 })
 export class Modules {}

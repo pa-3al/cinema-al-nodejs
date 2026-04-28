@@ -22,11 +22,12 @@ export class SqlMovieRepository implements IMovieRepositoryPort {
     }
 
     async findAll({ page, size }: { page: number; size: number; }): Promise<getAllResponse<Movie>> {
-        const query = this.movieRepository.createQueryBuilder();
-        query.skip((page - 1) * size);
-        query.take(size);
+        const [movies, totalCount] = await this.movieRepository.findAndCount({
+            relations: ['genre'],
+            skip: (page - 1) * size,
+            take: size,
+        });
 
-        const [movies, totalCount] = await query.getManyAndCount();
         return {
             data: movies,
             size,
@@ -37,29 +38,30 @@ export class SqlMovieRepository implements IMovieRepositoryPort {
     }
 
     async findById(id: number): Promise<Movie | null> {
-        return await this.movieRepository.findOneBy({ id });
+        return await this.movieRepository.findOne({
+            where: { id },
+            relations: ['genre'] // Inclut la table movie-genre
+        });
     }
 
     async update(id: number, movie: Partial<Movie>): Promise<Movie | null> {
-        const movieFound = await this.movieRepository.findOneBy({ id });
+        const movieFound = await this.movieRepository.findOne({
+            where: { id },
+            relations: ['genre']
+        });
+
         if (!movieFound) {
             return null;
         }
 
-        if (movie.title != null) {
-            movieFound.title = movie.title;
-        }
+        if (movie.title != null) movieFound.title = movie.title;
+        if (movie.synopsis != null) movieFound.synopsis = movie.synopsis;
+        if (movie.durationMinutes != null) movieFound.durationMinutes = movie.durationMinutes;
+        if (movie.releaseDate != null) movieFound.releaseDate = movie.releaseDate;
 
-        if (movie.synopsis != null) {
-            movieFound.synopsis = movie.synopsis;
-        }
-
-        if (movie.durationMinutes != null) {
-            movieFound.durationMinutes = movie.durationMinutes;
-        }
-
-        if (movie.releaseDate != null) {
-            movieFound.releaseDate = movie.releaseDate;
+        // Mise à jour du genre si fourni
+        if (movie.genre !== undefined) {
+            movieFound.genre = movie.genre;
         }
 
         if (movie.posterUrl !== undefined) {
@@ -70,7 +72,10 @@ export class SqlMovieRepository implements IMovieRepositoryPort {
     }
 
     async delete(id: number): Promise<Movie | null> {
-        const movie = await this.movieRepository.findOneBy({ id });
+        const movie = await this.movieRepository.findOne({
+            where: { id },
+            relations: ['genre']
+        });
 
         if (!movie) {
             return null;

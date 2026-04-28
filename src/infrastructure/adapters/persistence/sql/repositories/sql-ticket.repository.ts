@@ -106,7 +106,7 @@ export class SqlTicketRepository implements ITicketRepositoryPort {
     async useTicketAtomic(ticketId: number, screeningId: number, totalUsesAllowed: number): Promise<TicketUsage> {
         return await this.ticketRepository.manager.transaction("READ COMMITTED", async (manager) => {
             const screening = await manager.createQueryBuilder(Screening, "screening")
-                .leftJoinAndSelect("screening.room", "room")
+                .innerJoinAndSelect("screening.room", "room")
                 .setLock("pessimistic_write")
                 .where("screening.id = :screeningId", { screeningId })
                 .getOne();

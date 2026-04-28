@@ -13,10 +13,11 @@ import { TICKET_PRICE_REPOSITORY, TICKET_PRICE_SERVICE, TICKET_REPOSITORY, TICKE
 import { ProjectionTypeModule } from "../projection-type/projection-type.module";
 import { ScreeningModule } from "../screening/screening.module";
 import { UserModule } from "../user/user.module";
+import {ProjectionType} from "../../infrastructure/adapters/persistence/sql/entities/projection-type.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Ticket, TicketUsage, TicketPrice]),
+        TypeOrmModule.forFeature([Ticket, TicketUsage, TicketPrice, ProjectionType]),
         UserModule,
         ScreeningModule,
         ProjectionTypeModule,

@@ -17,7 +17,9 @@ L'application est accessible à l'adresse suivante :
 La documentation Swagger est disponible à cette adresse :
 [https://api-absolute-cinema.remythibaut.fr/swagger](https://api-absolute-cinema.remythibaut.fr/swagger)
 
-Une collection Postman avec l'ensemble des endpoints est disponible (avec script pour automatiser le refresh)
+Une collection Postman avec l'ensemble des endpoints est disponible (avec scripts pour automatiser le refresh). Pour l'utiliser, il suffit de l'importer dans Postman.
+
+Le code source du frontend est en complément de ce projet. Il a également été déposé sur Myges.
 
 ## Commandes 
 
@@ -74,6 +76,9 @@ Pour lancer les différents containers (patienter quelques secondes) :
 ```bash
 docker compose up -d
 ```
+
+La base de données ainsi que Minio possèderont un jeu de données de départ.
+
 
 ### Base de données (Migrations)
 
@@ -137,7 +142,7 @@ npm run test
 ### Technique
 * Documentation complète de l'API via Swagger/OpenAPI.
 * Utilisation généralisée du format standardisé ISO-8601 pour les dates.
-* Dockerisation de l'environnement complet.
+* Dockerisation de l'environnement complet (dev / prod).
 
 ---
 
@@ -148,8 +153,8 @@ npm run test
 * **Tests unitaires :** Ajout de tests unitaires recouvrant l'ensemble des fichiers *.service.ts
 
 ### Planning des Employés (Super Admin)
-* Gestion des ressources humaines : affectation des employés sur des postes précis (Confiserie, Accueil, Projectionniste).
-* Vérification automatique des conflits de planning pour empêcher les doublons d'affectation sur un même créneau horaire.
+* **Gestion des ressources humaines** : affectation des employés sur des postes précis (Confiserie, Accueil, Projectionniste).
+* **Vérification automatique des conflits de planning** pour empêcher les doublons d'affectation sur un même créneau horaire.
 
 ### Observabilité & Monitoring
 * **Prometheus :** Exposition des métriques de l'application via un adapter dédié.

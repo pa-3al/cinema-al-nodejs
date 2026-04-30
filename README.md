@@ -10,12 +10,23 @@ Projet proposé par :
 
 Ce document présente le projet, les commandes à effectuer pour pouvoir le lancer ainsi que l'ensemble des fonctionnalités intégrées dans ce dernier.
 
+L'application est accessible à l'adresse suivante : 
+- Backend : [https://api-absolute-cinema.remythibaut.fr](https://api-absolute-cinema.remythibaut.fr)
+- Frontend : [https://absolute-cinema.remythibaut.fr](https://absolute-cinema.remythibaut.fr)
+
+La documentation Swagger est disponible à cette adresse :
+[https://api-absolute-cinema.remythibaut.fr/swagger](https://api-absolute-cinema.remythibaut.fr/swagger)
+
+Une collection Postman avec l'ensemble des endpoints est disponible (avec script pour automatiser le refresh)
+
 ## Commandes 
 
 Pour cloner ce repository : 
 
 ```bash
 git clone git@github.com:pa-3al/cinema-al-nodejs.git
+cd cinema-al-nodejs
+npm install
 ```
 
 Ce projet utilise Docker et Docker Compose pour faire tourner les services tiers (PostgreSQL, Minio....).
@@ -57,6 +68,11 @@ LOKI_URL=http://localhost:3100
 LOKI_TOKEN=
 
 NODE_ENV=development
+```
+
+Pour lancer les différents containers (patienter quelques secondes) : 
+```bash
+docker compose up -d
 ```
 
 ### Base de données (Migrations)

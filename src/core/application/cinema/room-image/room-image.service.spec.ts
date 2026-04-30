@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomImageService } from './room-image.service';
-import { ROOM_IMAGE_REPOSITORY, STORAGE_PORT } from '../../../domain/global/token';
+import { ROOM_IMAGE_REPOSITORY, ROOM_REPOSITORY, STORAGE_PORT } from '../../../domain/global/token';
 import { BadRequestException } from '@nestjs/common';
 
 describe('RoomImageService', () => {
@@ -20,11 +20,16 @@ describe('RoomImageService', () => {
         uploadFile: jest.fn(),
     };
 
+    const mockRoomRepository = {
+        findById: jest.fn().mockResolvedValue({ id: 1, name: 'Room' }),
+    };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 RoomImageService,
                 { provide: ROOM_IMAGE_REPOSITORY, useValue: mockRoomImageRepository },
+                { provide: ROOM_REPOSITORY, useValue: mockRoomRepository },
                 { provide: STORAGE_PORT, useValue: mockStorageService },
             ],
         }).compile();

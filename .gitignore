@@ -18,6 +18,7 @@ lerna-debug.log*
 .env.development
 .env.test
 .env.production
+prod.env
 
 # temp directory
 .temp
@@ -25,3 +26,5 @@ lerna-debug.log*
 
 /.idea
 /.vscode
+minio-data
+

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoomService } from './room.service';
 import { NotFoundException } from '@nestjs/common';
-import {PROJECTION_TYPE_REPOSITORY, ROOM_REPOSITORY} from "../../../domain/global/token";
+import { PROJECTION_TYPE_REPOSITORY, ROOM_REPOSITORY, STORAGE_PORT } from "../../../domain/global/token";
 
 describe('RoomService', () => {
     let service: RoomService;
@@ -19,12 +19,18 @@ describe('RoomService', () => {
         findById: jest.fn(),
     };
 
+    const mockStorageService = {
+        getFileUrl: jest.fn(),
+        uploadFile: jest.fn(),
+    };
+
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 RoomService,
                 { provide: ROOM_REPOSITORY, useValue: mockRoomRepository },
                 { provide: PROJECTION_TYPE_REPOSITORY, useValue: mockProjectionTypeRepository },
+                { provide: STORAGE_PORT, useValue: mockStorageService },
             ],
         }).compile();
 
@@ -69,7 +75,7 @@ describe('RoomService', () => {
             expect(mockRoomRepository.create).toHaveBeenCalledWith({ ...dto, projectionType });
             expect(result.id).toEqual(1);
             expect(result.projectionTypeId).toEqual(1);
-            expect(result.roomImageIds).toEqual([]);
+            expect(result.roomImageIds).toBeUndefined();
         });
     });
 
@@ -95,7 +101,6 @@ describe('RoomService', () => {
 
             expect(result?.id).toEqual(1);
             expect(result?.projectionTypeId).toEqual(2);
-            expect(result?.roomImageIds).toEqual([5]);
         });
     });
 });

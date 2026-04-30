@@ -16,6 +16,7 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   minio:
     image: quay.io/minio/minio
@@ -23,14 +24,15 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    command: server /data
+    command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "${MINIO_PORT}:9000"
+      - "9001:9001"
     volumes:
-      - minio_data:/data
+      - ./minio-data:/data
 
   minio-init:
     image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
@@ -39,6 +41,8 @@ services:
     env_file:
       - .env
     restart: on-failure
+    volumes:
+      - ./minio-seed:/minio-seed
     entrypoint: >
       /bin/sh -c "
       echo 'Waiting for MinIO...' &&
@@ -47,7 +51,9 @@ services:
       /usr/bin/mc mb -p local/${MINIO_BUCKET} || true &&
       /usr/bin/mc admin user add local ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY} || true &&
       /usr/bin/mc admin policy attach local readwrite --user ${MINIO_ACCESS_KEY} &&
-      echo 'MinIO initialized' &&
+      /usr/bin/mc cp -r /minio-seed/movies local/${MINIO_BUCKET}/ || true &&
+      /usr/bin/mc cp -r /minio-seed/rooms local/${MINIO_BUCKET}/ || true &&
+      echo 'MinIO initialized and seeded' &&
       exit 0;
       "
 
@@ -86,7 +92,6 @@ services:
 
 volumes:
   postgres_data:
-  minio_data:
   prometheus_data:
   grafana_data:
   loki_data:

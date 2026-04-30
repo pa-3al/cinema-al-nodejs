@@ -10,12 +10,25 @@ Projet proposé par :
 
 Ce document présente le projet, les commandes à effectuer pour pouvoir le lancer ainsi que l'ensemble des fonctionnalités intégrées dans ce dernier.
 
+L'application est accessible à l'adresse suivante : 
+- Backend : [https://api-absolute-cinema.remythibaut.fr](https://api-absolute-cinema.remythibaut.fr)
+- Frontend : [https://absolute-cinema.remythibaut.fr](https://absolute-cinema.remythibaut.fr)
+
+La documentation Swagger est disponible à cette adresse :
+[https://api-absolute-cinema.remythibaut.fr/swagger](https://api-absolute-cinema.remythibaut.fr/swagger)
+
+Une collection Postman avec l'ensemble des endpoints est disponible (avec scripts pour automatiser le refresh). Pour l'utiliser, il suffit de l'importer dans Postman.
+
+Le code source du frontend est en complément de ce projet. Il a également été déposé sur Myges.
+
 ## Commandes 
 
 Pour cloner ce repository : 
 
 ```bash
 git clone git@github.com:pa-3al/cinema-al-nodejs.git
+cd cinema-al-nodejs
+npm install
 ```
 
 Ce projet utilise Docker et Docker Compose pour faire tourner les services tiers (PostgreSQL, Minio....).
@@ -58,6 +71,14 @@ LOKI_TOKEN=
 
 NODE_ENV=development
 ```
+
+Pour lancer les différents containers (patienter quelques secondes) : 
+```bash
+docker compose up -d
+```
+
+La base de données ainsi que Minio possèderont un jeu de données de départ.
+
 
 ### Base de données (Migrations)
 
@@ -121,7 +142,7 @@ npm run test
 ### Technique
 * Documentation complète de l'API via Swagger/OpenAPI.
 * Utilisation généralisée du format standardisé ISO-8601 pour les dates.
-* Dockerisation de l'environnement complet.
+* Dockerisation de l'environnement complet (dev / prod).
 
 ---
 
@@ -132,8 +153,8 @@ npm run test
 * **Tests unitaires :** Ajout de tests unitaires recouvrant l'ensemble des fichiers *.service.ts
 
 ### Planning des Employés (Super Admin)
-* Gestion des ressources humaines : affectation des employés sur des postes précis (Confiserie, Accueil, Projectionniste).
-* Vérification automatique des conflits de planning pour empêcher les doublons d'affectation sur un même créneau horaire.
+* **Gestion des ressources humaines** : affectation des employés sur des postes précis (Confiserie, Accueil, Projectionniste).
+* **Vérification automatique des conflits de planning** pour empêcher les doublons d'affectation sur un même créneau horaire.
 
 ### Observabilité & Monitoring
 * **Prometheus :** Exposition des métriques de l'application via un adapter dédié.
